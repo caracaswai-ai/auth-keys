@@ -89,5 +89,12 @@
     "durationMinutes": 0,
     "maxDevices": 1,
     "allowedHWIDs": []
+  },
+  "PRIV-KEY-4VWMV97K": {
+    "durationDays": 500,
+    "durationHours": 0,
+    "durationMinutes": 0,
+    "maxDevices": 1,
+    "allowedHWIDs": []
   }
 }

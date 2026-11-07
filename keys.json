@@ -75,5 +75,12 @@
     "durationMinutes": 0,
     "maxDevices": 1,
     "allowedHWIDs": []
+  },
+  "VIP-KEY-1CYZISLE": {
+    "durationDays": 1,
+    "durationHours": 0,
+    "durationMinutes": 0,
+    "maxDevices": 1,
+    "allowedHWIDs": []
   }
 }

@@ -1,11 +1,4 @@
 {
-  "1": {
-    "durationDays": 1,
-    "durationHours": 0,
-    "durationMinutes": 0,
-    "maxDevices": 1,
-    "allowedHWIDs": []
-  },
   "JULIO-AMOR-MIVIDA": {
     "durationDays": 500,
     "durationHours": 0,

@@ -13,13 +13,6 @@
     "maxDevices": 100,
     "allowedHWIDs": []
   },
-  "VIP-KEY-CZPM69VK": {
-    "durationDays": 1,
-    "durationHours": 0,
-    "durationMinutes": 0,
-    "maxDevices": 100,
-    "allowedHWIDs": []
-  },
   "VIP-KEY-A3JW9QRR": {
     "durationDays": 1,
     "durationHours": 0,

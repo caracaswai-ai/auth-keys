@@ -33,5 +33,12 @@
     "durationMinutes": 0,
     "maxDevices": 1,
     "allowedHWIDs": []
+  },
+  "VIP-KEY-W5XCJS1Y": {
+    "durationDays": 500,
+    "durationHours": 0,
+    "durationMinutes": 0,
+    "maxDevices": 1,
+    "allowedHWIDs": []
   }
 }

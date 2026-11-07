@@ -1,1 +1,9 @@
-{}
+{
+  "FREE-KEY-0OD1J8WT": {
+    "durationDays": 3,
+    "durationHours": 0,
+    "durationMinutes": 0,
+    "maxDevices": 100,
+    "allowedHWIDs": []
+  }
+}

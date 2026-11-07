@@ -26,5 +26,12 @@
     "durationMinutes": 0,
     "maxDevices": 1,
     "allowedHWIDs": []
+  },
+  "VIP-KEY-U99A4DFW": {
+    "durationDays": 1,
+    "durationHours": 0,
+    "durationMinutes": 0,
+    "maxDevices": 1,
+    "allowedHWIDs": []
   }
 }

@@ -1,11 +1,4 @@
 {
-  "FREE-KEY-V3BYOI62": {
-    "durationDays": 1,
-    "durationHours": 0,
-    "durationMinutes": 0,
-    "maxDevices": 1,
-    "allowedHWIDs": []
-  },
   "VIP-KEY-6W5Y09I5": {
     "durationDays": 1000,
     "durationHours": 0,

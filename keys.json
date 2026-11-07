@@ -5,5 +5,12 @@
     "durationMinutes": 0,
     "maxDevices": 100,
     "allowedHWIDs": []
+  },
+  "VIP-KEY-OKI087KB": {
+    "durationDays": 1,
+    "durationHours": 0,
+    "durationMinutes": 0,
+    "maxDevices": 1,
+    "allowedHWIDs": []
   }
 }

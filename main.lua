@@ -117,6 +117,8 @@ keyFrame.Position = UDim2.new(0.5, -190, 0.5, -100)
 keyFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
 keyFrame.BorderSizePixel = 0
 keyFrame.Visible = true
+keyFrame.Active = true
+keyFrame.Draggable = true
 keyFrame.Parent = screenGui
 
 local keyCorner = Instance.new("UICorner")

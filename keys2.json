@@ -12,5 +12,12 @@
     "durationMinutes": 0,
     "maxDevices": 1,
     "allowedHWIDs": []
+  },
+  "FREE-KEY-4A419GNU": {
+    "durationDays": 1,
+    "durationHours": 0,
+    "durationMinutes": 0,
+    "maxDevices": 1,
+    "allowedHWIDs": []
   }
 }

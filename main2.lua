@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (Apartado AIM, FOV Slider interactivo + Silent Aim)
+-- 01Scripts | Panel 2 (ESP Posición Arriba Corregida, Health Bar 4% de Grosor)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -116,7 +116,7 @@ StatusMsg.TextXAlignment = Enum.TextXAlignment.Center
 StatusMsg.Parent = LoginFrame
 
 -- ==========================================
--- PANEL PRINCIPAL CON APARTADOS VISUAL Y AIM
+-- PANEL PRINCIPAL CON APARTADOS VISUAL Y EXTRA
 -- ==========================================
 local function OpenMainPanel()
     LoginGui:Destroy()
@@ -127,15 +127,6 @@ local function OpenMainPanel()
     ScreenGui.ResetOnSpawn = false
     ScreenGui.IgnoreGuiInset = true
 
-    -- Círculo FOV visual en pantalla
-    local fovCircle = Drawing.new("Circle")
-    fovCircle.Visible = true
-    fovCircle.Thickness = 1.5
-    fovCircle.Color = Color3.fromRGB(235, 130, 255)
-    fovCircle.Filled = false
-    fovCircle.Radius = 150 -- Tamaño inicial predeterminado
-
-    -- Mini pantalla superior (Muñeco + Contador de jugadores con líneas)
     local TopIndicatorFrame = Instance.new("Frame")
     TopIndicatorFrame.Name = "TopIndicatorFrame"
     TopIndicatorFrame.Size = UDim2.new(0, 90, 0, 26)
@@ -236,7 +227,6 @@ local function OpenMainPanel()
     CloseButton.Parent = TopBar
 
     CloseButton.MouseButton1Click:Connect(function()
-        fovCircle:Remove()
         ScreenGui:Destroy()
     end)
 
@@ -269,12 +259,11 @@ local function OpenMainPanel()
     SideBar.BorderSizePixel = 0
     SideBar.Parent = ContentHolder
 
-    -- Contenedores de pestañas (Visual y Aim)
     local VisualContainer = Instance.new("ScrollingFrame")
     VisualContainer.Size = UDim2.new(1, -230, 1, -20)
     VisualContainer.Position = UDim2.new(0, 220, 0, 10)
     VisualContainer.BackgroundTransparency = 1
-    VisualContainer.CanvasSize = UDim2.new(0, 0, 0, 160)
+    VisualContainer.CanvasSize = UDim2.new(0, 0, 0, 240)
     VisualContainer.ScrollBarThickness = 3
     VisualContainer.Visible = true
     VisualContainer.Parent = ContentHolder
@@ -283,20 +272,19 @@ local function OpenMainPanel()
     VisualList.Padding = UDim.new(0, 12)
     VisualList.Parent = VisualContainer
 
-    local AimContainer = Instance.new("ScrollingFrame")
-    AimContainer.Size = UDim2.new(1, -230, 1, -20)
-    AimContainer.Position = UDim2.new(0, 220, 0, 10)
-    AimContainer.BackgroundTransparency = 1
-    AimContainer.CanvasSize = UDim2.new(0, 0, 0, 160)
-    AimContainer.ScrollBarThickness = 3
-    AimContainer.Visible = false
-    AimContainer.Parent = ContentHolder
+    local ExtraContainer = Instance.new("ScrollingFrame")
+    ExtraContainer.Size = UDim2.new(1, -230, 1, -20)
+    ExtraContainer.Position = UDim2.new(0, 220, 0, 10)
+    ExtraContainer.BackgroundTransparency = 1
+    ExtraContainer.CanvasSize = UDim2.new(0, 0, 0, 280)
+    ExtraContainer.ScrollBarThickness = 3
+    ExtraContainer.Visible = false
+    ExtraContainer.Parent = ContentHolder
 
-    local AimList = Instance.new("UIListLayout")
-    AimList.Padding = UDim.new(0, 12)
-    AimList.Parent = AimContainer
+    local ExtraList = Instance.new("UIListLayout")
+    ExtraList.Padding = UDim.new(0, 12)
+    ExtraList.Parent = ExtraContainer
 
-    -- Botones del Menú Lateral
     local MainText = Instance.new("TextLabel")
     MainText.Size = UDim2.new(1, -20, 0, 20)
     MainText.Position = UDim2.new(0, 18, 0, 15)
@@ -323,36 +311,35 @@ local function OpenMainPanel()
     VTCorner.CornerRadius = UDim.new(0, 8)
     VTCorner.Parent = VisualTab
 
-    local AimTab = Instance.new("TextButton")
-    AimTab.Size = UDim2.new(1, -24, 0, 42)
-    AimTab.Position = UDim2.new(0, 12, 0, 92)
-    AimTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
-    AimTab.TextColor3 = Color3.fromRGB(150, 150, 165)
-    AimTab.Text = "    Aim"
-    AimTab.TextSize = 13
-    AimTab.Font = Enum.Font.GothamBold
-    AimTab.TextXAlignment = Enum.TextXAlignment.Left
-    AimTab.Parent = SideBar
+    local ExtraTab = Instance.new("TextButton")
+    ExtraTab.Size = UDim2.new(1, -24, 0, 42)
+    ExtraTab.Position = UDim2.new(0, 12, 0, 92)
+    ExtraTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+    ExtraTab.TextColor3 = Color3.fromRGB(150, 150, 165)
+    ExtraTab.Text = "    Extra"
+    ExtraTab.TextSize = 13
+    ExtraTab.Font = Enum.Font.GothamBold
+    ExtraTab.TextXAlignment = Enum.TextXAlignment.Left
+    ExtraTab.Parent = SideBar
 
-    local ATCorner = Instance.new("UICorner")
-    ATCorner.CornerRadius = UDim.new(0, 8)
-    ATCorner.Parent = AimTab
+    local ETCorner = Instance.new("UICorner")
+    ETCorner.CornerRadius = UDim.new(0, 8)
+    ETCorner.Parent = ExtraTab
 
-    -- Cambio entre pestañas del menú lateral
     VisualTab.MouseButton1Click:Connect(function()
         VisualContainer.Visible = true
-        AimContainer.Visible = false
+        ExtraContainer.Visible = false
         VisualTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
         VisualTab.TextColor3 = Color3.fromRGB(235, 130, 255)
-        AimTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
-        AimTab.TextColor3 = Color3.fromRGB(150, 150, 165)
+        ExtraTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        ExtraTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     end)
 
-    AimTab.MouseButton1Click:Connect(function()
+    ExtraTab.MouseButton1Click:Connect(function()
         VisualContainer.Visible = false
-        AimContainer.Visible = true
-        AimTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
-        AimTab.TextColor3 = Color3.fromRGB(235, 130, 255)
+        ExtraContainer.Visible = true
+        ExtraTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
+        ExtraTab.TextColor3 = Color3.fromRGB(235, 130, 255)
         VisualTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
         VisualTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     end)
@@ -360,8 +347,13 @@ local function OpenMainPanel()
     local ESP_Enabled = false
     local Lines_Enabled = false
     local Health_Enabled = false
-    local SilentAim_Enabled = false
-    local fovSize = 150
+    local Highlight_Enabled = false
+
+    local Fly_Enabled = false
+    local flySpeed = 50
+    local Noclip_Enabled = false
+    local Speed_Enabled = false
+    local moveSpeed = 50
 
     local function CreateToggle(parentContainer, name, callback)
         local ToggleFrame = Instance.new("Frame")
@@ -420,7 +412,6 @@ local function OpenMainPanel()
         end)
     end
 
-    -- Creación del Slider Interactivo para el FOV
     local function CreateSlider(parentContainer, name, min, max, default, callback)
         local SliderFrame = Instance.new("Frame")
         SliderFrame.Size = UDim2.new(1, 0, 0, 65)
@@ -498,90 +489,75 @@ local function OpenMainPanel()
         end)
     end
 
-    -- Toggles de Visual
     CreateToggle(VisualContainer, "ESP", function(state) ESP_Enabled = state end)
     CreateToggle(VisualContainer, "Lines", function(state) 
         Lines_Enabled = state 
         if not state then TopIndicatorFrame.Visible = false end
     end)
     CreateToggle(VisualContainer, "Health", function(state) Health_Enabled = state end)
+    CreateToggle(VisualContainer, "Highlight", function(state) Highlight_Enabled = state end)
 
-    -- Toggles y Sliders de Aim
-    CreateToggle(AimContainer, "Silent Aim", function(state) SilentAim_Enabled = state end)
-    CreateSlider(AimContainer, "FOV Size", 50, 500, 150, function(val)
-        fovSize = val
-    end)
+    CreateToggle(ExtraContainer, "Fly", function(state) Fly_Enabled = state end)
+    CreateSlider(ExtraContainer, "Fly Speed", 10, 300, 50, function(val) flySpeed = val end)
+    CreateToggle(ExtraContainer, "Noclip", function(state) Noclip_Enabled = state end)
+    CreateToggle(ExtraContainer, "Speed", function(state) Speed_Enabled = state end)
+    CreateSlider(ExtraContainer, "Walk Speed", 16, 200, 50, function(val) moveSpeed = val end)
 
-    -- ==========================================
-    -- LÓGICA DEL SILENT AIM & FOV CIRCLE
-    -- ==========================================
-    local function GetClosestTargetHeadWithinFOV()
-        local closestHead = nil
-        local shortestDist = fovSize
-        local localChar = LocalPlayer.Character
-        local localHrp = localChar and localChar:FindFirstChild("HumanoidRootPart")
+    local flyBodyGyro, flyBodyVelocity
+    RunService.RenderStepped:Connect(function()
+        local char = LocalPlayer.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        local humanoid = char and char:FindFirstChildOfClass("Humanoid")
 
-        if not localHrp then return nil end
-
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer and player.Character then
-                local char = player.Character
-                local humanoid = char:FindFirstChildOfClass("Humanoid")
-                local head = char:FindFirstChild("Head")
-                local hrp = char:FindFirstChild("HumanoidRootPart")
-
-                if humanoid and humanoid.Health > 0 and head and hrp then
-                    local dist3D = (hrp.Position - localHrp.Position).Magnitude
-                    if dist3D <= 500 then
-                        local screenPos, onScreen = Camera:WorldToViewportPoint(head.Position)
-                        if onScreen then
-                            local mousePos = UserInputService:GetMouseLocation()
-                            local dist2D = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
-                            if dist2D <= shortestDist then
-                                shortestDist = dist2D
-                                closestHead = head
-                            end
-                        end
-                    end
+        if Noclip_Enabled and char then
+            for _, part in ipairs(char:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
                 end
             end
         end
-        return closestHead
-    end
 
-    -- Hook al metamétodo __namecall para redireccionar disparos al objetivo dentro del FOV
-    local rawmetatable = getrawmetatable or debug.getrawmetatable
-    local setreadonly = setreadonly or make_writeable
-    if rawmetatable and setreadonly then
-        local gmt = rawmetatable(game)
-        local oldNamecall = gmt.__namecall
-        setreadonly(gmt, false)
+        if Speed_Enabled and humanoid then
+            humanoid.WalkSpeed = moveSpeed
+        end
 
-        gmt.__namecall = newcclosure(function(self, ...)
-            local method = getnamecallmethod()
-            if SilentAim_Enabled and (method == "FindPartOnRayWithIgnoreList" or method == "Raycast" or method == "ScreenPointToRay" or method == "ViewportPointToRay") then
-                local targetHead = GetClosestTargetHeadWithinFOV()
-                if targetHead then
-                    if method == "ViewportPointToRay" or method == "ScreenPointToRay" then
-                        return Ray.new(Camera.CFrame.Position, (targetHead.Position - Camera.CFrame.Position).Unit)
-                    end
-                end
+        if Fly_Enabled and hrp then
+            if not flyBodyGyro then
+                flyBodyGyro = Instance.new("BodyGyro")
+                flyBodyGyro.P = 9e4
+                flyBodyGyro.MaxTorque = Vector3.new(9e4, 9e4, 9e4)
+                flyBodyGyro.Parent = hrp
             end
-            return oldNamecall(self, ...)
-        end)
-        setreadonly(gmt, true)
-    end
+            if not flyBodyVelocity then
+                flyBodyVelocity = Instance.new("BodyVelocity")
+                flyBodyVelocity.Velocity = Vector3.new(0, 0, 0)
+                flyBodyVelocity.MaxForce = Vector3.new(9e4, 9e4, 9e4)
+                flyBodyVelocity.Parent = hrp
+            end
 
-    -- ==========================================
-    -- RENDERIZADO ESP Y ACTUALIZACIÓN DE CÍRCULO FOV
-    -- ==========================================
+            flyBodyGyro.CFrame = Camera.CFrame
+            local moveDir = Vector3.new(0, 0, 0)
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDir = moveDir + Camera.CFrame.LookVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDir = moveDir - Camera.CFrame.LookVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDir = moveDir - Camera.CFrame.RightVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDir = moveDir + Camera.CFrame.RightVector end
+            
+            flyBodyVelocity.Velocity = moveDir * flySpeed
+            if humanoid then humanoid.PlatformStand = true end
+        else
+            if flyBodyGyro then flyBodyGyro:Destroy(); flyBodyGyro = nil end
+            if flyBodyVelocity then flyBodyVelocity:Destroy(); flyBodyVelocity = nil end
+            if humanoid and humanoid.PlatformStand then humanoid.PlatformStand = false end
+        end
+    end)
+
     local espCache = {}
+    local highlightCache = {}
     local raycastParams = RaycastParams.new()
     raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 
     local BOX_THICKNESS = 1.5   
     local LINE_THICKNESS = 1.6  
-    local HEALTH_WIDTH = 2.5    
 
     local function removeEsp(player)
         if espCache[player] then
@@ -591,18 +567,13 @@ local function OpenMainPanel()
             if espCache[player].healthBg then espCache[player].healthBg:Remove() end
             espCache[player] = nil
         end
+        if highlightCache[player] then
+            highlightCache[player]:Destroy()
+            highlightCache[player] = nil
+        end
     end
 
     RunService.RenderStepped:Connect(function()
-        -- Actualizar posición y tamaño del círculo FOV en pantalla
-        if SilentAim_Enabled then
-            fovCircle.Visible = true
-            fovCircle.Radius = fovSize
-            fovCircle.Position = UserInputService:GetMouseLocation()
-        else
-            fovCircle.Visible = false
-        end
-
         local localChar = LocalPlayer.Character
         local localHrp = localChar and localChar:FindFirstChild("HumanoidRootPart")
 
@@ -623,6 +594,44 @@ local function OpenMainPanel()
                     local distance = (hrp.Position - localHrp.Position).Magnitude
 
                     if distance <= 500 then
+                        local isAlive = humanoid.Health > 0
+
+                        local isBehindWall = false
+                        if head and Camera and isAlive then
+                            local origin = Camera.CFrame.Position
+                            local direction = (head.Position - origin)
+                            local rayResult = workspace:Raycast(origin, direction, raycastParams)
+                            
+                            if rayResult then
+                                local hitInstance = rayResult.Instance
+                                if not hitInstance:IsDescendantOf(char) then
+                                    isBehindWall = true
+                                end
+                            end
+                        end
+
+                        local dynamicColor = isBehindWall and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+
+                        if Highlight_Enabled and isAlive then
+                            if not highlightCache[player] or highlightCache[player].Parent ~= char then
+                                if highlightCache[player] then highlightCache[player]:Destroy() end
+                                local hl = Instance.new("Highlight")
+                                hl.Name = "01Scripts_PermanentHighlight"
+                                hl.Adornee = char
+                                hl.FillTransparency = 0.5
+                                hl.OutlineTransparency = 0
+                                hl.Parent = char
+                                highlightCache[player] = hl
+                            end
+                            highlightCache[player].Enabled = true
+                            highlightCache[player].FillColor = dynamicColor
+                            highlightCache[player].OutlineColor = dynamicColor
+                        else
+                            if highlightCache[player] then
+                                highlightCache[player].Enabled = false
+                            end
+                        end
+
                         if not espCache[player] then
                             espCache[player] = {}
                             
@@ -650,36 +659,17 @@ local function OpenMainPanel()
                         end
 
                         local cache = espCache[player]
-                        local isAlive = humanoid.Health > 0
-
-                        -- Comprobación de pared (Raycast)
-                        local isBehindWall = false
-                        if head and Camera and isAlive then
-                            local origin = Camera.CFrame.Position
-                            local direction = (head.Position - origin)
-                            local rayResult = workspace:Raycast(origin, direction, raycastParams)
-                            
-                            if rayResult then
-                                local hitInstance = rayResult.Instance
-                                if not hitInstance:IsDescendantOf(char) then
-                                    isBehindWall = true
-                                end
-                            end
-                        end
-
-                        local dynamicColor = isBehindWall and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-
                         local headPos, headOnScreen = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
                         local legPos, legOnScreen = Camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0))
 
                         if headOnScreen or legOnScreen then
                             local baseHeight = math.abs(headPos.Y - legPos.Y)
-                            local height = baseHeight * 0.773
+                            local height = baseHeight * 1.334
                             local width = height / 2
                             local x = headPos.X - width / 2
-                            local y = headPos.Y + (baseHeight * 0.325)
+                            -- Desplazamiento corregido hacia ARRIBA restando correctamente la posición vertical
+                            local y = headPos.Y - (baseHeight * 0.25)
 
-                            -- ESP Box
                             if ESP_Enabled and isAlive then
                                 cache.box.Visible = true
                                 cache.box.Size = Vector2.new(width, height)
@@ -690,7 +680,6 @@ local function OpenMainPanel()
                                 cache.box.Visible = false
                             end
 
-                            -- Lines / Tracers
                             if Lines_Enabled and isAlive then
                                 cache.line.Visible = true
                                 cache.line.From = Vector2.new(Camera.ViewportSize.X / 2, 0)
@@ -702,10 +691,10 @@ local function OpenMainPanel()
                                 cache.line.Visible = false
                             end
 
-                            -- Health Bar
                             if Health_Enabled and isAlive then
                                 local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
                                 local hbHeight = height * healthPercent
+                                local HEALTH_WIDTH = math.clamp(width * 0.04, 1.0, 4.0) -- Grosor ajustado al 4% (3% menos que el anterior)
 
                                 cache.healthBg.Visible = true
                                 cache.healthBg.Size = Vector2.new(HEALTH_WIDTH + 2, height + 2)

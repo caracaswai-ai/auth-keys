@@ -1,6 +1,6 @@
 -- ==========================================
--- 01Scripts | Panel 2 (Morado y Negro)
--- Autenticación exclusiva con keys2.json
+-- 01Scripts | Panel 2 (Idéntico a la UI de la imagen)
+-- Validación exclusiva contra keys2.json en GitHub
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -25,223 +25,318 @@ local function verifyKey(inputKey)
 end
 
 -- ==========================================
--- INTERFAZ GRÁFICA (LOGIN)
+-- INTERFAZ GRÁFICA DE LOGIN (01Scripts)
 -- ==========================================
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "01Scripts_Panel2_Login"
-ScreenGui.Parent = CoreGui
-ScreenGui.ResetOnSpawn = false
+local LoginGui = Instance.new("ScreenGui")
+LoginGui.Name = "01Scripts_Panel2_Login"
+LoginGui.Parent = CoreGui
+LoginGui.ResetOnSpawn = false
 
-local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 380, 0, 220)
-MainFrame.Position = UDim2.new(0.5, -190, 0.5, -110)
-MainFrame.BackgroundColor3 = Color3.fromRGB(11, 11, 14)
-MainFrame.BorderSizePixel = 0
-MainFrame.Parent = ScreenGui
+local LoginFrame = Instance.new("Frame")
+LoginFrame.Size = UDim2.new(0, 380, 0, 220)
+LoginFrame.Position = UDim2.new(0.5, -190, 0.5, -110)
+LoginFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 19)
+LoginFrame.BorderSizePixel = 0
+LoginFrame.Parent = LoginGui
 
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 10)
-UICorner.Parent = MainFrame
+local LCorner = Instance.new("UICorner")
+LCorner.CornerRadius = UDim.new(0, 8)
+LCorner.Parent = LoginFrame
 
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Color = Color3.fromRGB(72, 27, 117)
-UIStroke.Thickness = 2
-UIStroke.Parent = MainFrame
+local LStroke = Instance.new("UIStroke")
+LStroke.Color = Color3.fromRGB(30, 30, 40)
+LStroke.Thickness = 1
+LStroke.Parent = LoginFrame
 
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 40)
-Title.Position = UDim2.new(0, 0, 0, 15)
-Title.BackgroundTransparency = 1
-Title.Text = "01Scripts | Panel 2 Login"
-Title.TextColor3 = Color3.fromRGB(177, 77, 239)
-Title.TextSize = 16
-Title.Font = Enum.Font.GothamBold
-Title.Parent = MainFrame
+local LTitle = Instance.new("TextLabel")
+LTitle.Size = UDim2.new(1, -20, 0, 30)
+LTitle.Position = UDim2.new(0, 15, 0, 15)
+LTitle.BackgroundTransparency = 1
+LTitle.Text = "01Scripts | Panel 2 Login"
+LTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+LTitle.TextSize = 14
+LTitle.Font = Enum.Font.GothamBold
+LTitle.TextXAlignment = Enum.TextXAlignment.Left
+LTitle.Parent = LoginFrame
 
-local SubTitle = Instance.new("TextLabel")
-SubTitle.Size = UDim2.new(1, -40, 0, 20)
-SubTitle.Position = UDim2.new(0, 20, 0, 55)
-SubTitle.BackgroundTransparency = 1
-SubTitle.Text = "Introduce tu clave de keys2.json:"
-SubTitle.TextColor3 = Color3.fromRGB(136, 136, 144)
-SubTitle.TextSize = 12
-SubTitle.Font = Enum.Font.Gotham
-SubTitle.Parent = MainFrame
+local LSub = Instance.new("TextLabel")
+LSub.Size = UDim2.new(1, -20, 0, 20)
+LSub.Position = UDim2.new(0, 15, 0, 45)
+LSub.BackgroundTransparency = 1
+LSub.Text = "Key System | 01Hub"
+LSub.TextColor3 = Color3.fromRGB(120, 120, 135)
+LSub.TextSize = 11
+LSub.Font = Enum.Font.Gotham
+LSub.TextXAlignment = Enum.TextXAlignment.Left
+LSub.Parent = LoginFrame
 
-local TextBox = Instance.new("TextBox")
-TextBox.Size = UDim2.new(1, -40, 0, 40)
-TextBox.Position = UDim2.new(0, 20, 0, 85)
-TextBox.BackgroundColor3 = Color3.fromRGB(23, 8, 38)
-TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextBox.PlaceholderText = "VIP-KEY-XXXXXXXX o FREE-KEY-XXXXXXXX"
-TextBox.PlaceholderColor3 = Color3.fromRGB(100, 100, 110)
-TextBox.TextSize = 12
-TextBox.Font = Enum.Font.Gotham
-TextBox.ClearTextOnFocus = false
-TextBox.Parent = MainFrame
+local KeyInput = Instance.new("TextBox")
+KeyInput.Size = UDim2.new(1, -30, 0, 42)
+KeyInput.Position = UDim2.new(0, 15, 0, 80)
+KeyInput.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
+KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyInput.PlaceholderText = "Introduce tu key (keys2.json)..."
+KeyInput.PlaceholderColor3 = Color3.fromRGB(90, 90, 105)
+KeyInput.TextSize = 12
+KeyInput.Font = Enum.Font.Gotham
+KeyInput.ClearTextOnFocus = false
+KeyInput.Parent = LoginFrame
 
-local TextBoxCorner = Instance.new("UICorner")
-TextBoxCorner.CornerRadius = UDim.new(0, 6)
-TextBoxCorner.Parent = TextBox
+local KICorner = Instance.new("UICorner")
+KICorner.CornerRadius = UDim.new(0, 6)
+KICorner.Parent = KeyInput
 
-local VerifyBtn = Instance.new("TextButton")
-VerifyBtn.Size = UDim2.new(1, -40, 0, 35)
-VerifyBtn.Position = UDim2.new(0, 20, 0, 140)
-VerifyBtn.BackgroundColor3 = Color3.fromRGB(177, 77, 239)
-VerifyBtn.TextColor3 = Color3.fromRGB(11, 11, 14)
-VerifyBtn.Text = "Verificar Key"
-VerifyBtn.TextSize = 14
-VerifyBtn.Font = Enum.Font.GothamBold
-VerifyBtn.Parent = MainFrame
+local VerifyButton = Instance.new("TextButton")
+VerifyButton.Size = UDim2.new(1, -30, 0, 38)
+VerifyButton.Position = UDim2.new(0, 15, 0, 135)
+VerifyButton.BackgroundColor3 = Color3.fromRGB(162, 57, 239) -- Morado activo
+VerifyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+VerifyButton.Text = "Verificar Key"
+VerifyButton.TextSize = 13
+VerifyButton.Font = Enum.Font.GothamBold
+VerifyButton.Parent = LoginFrame
 
-local BtnCorner = Instance.new("UICorner")
-BtnCorner.CornerRadius = UDim.new(0, 6)
-BtnCorner.Parent = VerifyBtn
+local VBCorner = Instance.new("UICorner")
+VBCorner.CornerRadius = UDim.new(0, 6)
+VBCorner.Parent = VerifyButton
 
-local StatusLabel = Instance.new("TextLabel")
-StatusLabel.Size = UDim2.new(1, -40, 0, 20)
-StatusLabel.Position = UDim2.new(0, 20, 0, 185)
-StatusLabel.BackgroundTransparency = 1
-StatusLabel.Text = ""
-StatusLabel.TextColor3 = Color3.fromRGB(255, 85, 85)
-StatusLabel.TextSize = 12
-StatusLabel.Font = Enum.Font.Gotham
-StatusLabel.Parent = MainFrame
+local StatusMsg = Instance.new("TextLabel")
+StatusMsg.Size = UDim2.new(1, -30, 0, 20)
+StatusMsg.Position = UDim2.new(0, 15, 0, 182)
+StatusMsg.BackgroundTransparency = 1
+StatusMsg.Text = ""
+StatusMsg.TextColor3 = Color3.fromRGB(255, 85, 85)
+StatusMsg.TextSize = 11
+StatusMsg.Font = Enum.Font.Gotham
+StatusMsg.TextXAlignment = Enum.TextXAlignment.Center
+StatusMsg.Parent = LoginFrame
 
 -- ==========================================
--- PANEL PRINCIPAL 01Scripts (Panel 2)
+-- PANEL PRINCIPAL (Estilo Idéntico a la Imagen)
 -- ==========================================
 local function OpenMainPanel()
-    ScreenGui:Destroy()
+    LoginGui:Destroy()
 
-    local MainGui = Instance.new("ScreenGui")
-    MainGui.Name = "01Scripts_Panel2_Main"
-    MainGui.Parent = CoreGui
-    MainGui.ResetOnSpawn = false
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "01Scripts_Panel2_Main"
+    ScreenGui.Parent = CoreGui
+    ScreenGui.ResetOnSpawn = false
 
-    local PanelFrame = Instance.new("Frame")
-    PanelFrame.Size = UDim2.new(0, 500, 0, 350)
-    PanelFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
-    PanelFrame.BackgroundColor3 = Color3.fromRGB(11, 11, 14)
-    PanelFrame.BorderSizePixel = 0
-    PanelFrame.Active = true
-    PanelFrame.Draggable = true
-    PanelFrame.Parent = MainGui
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Size = UDim2.new(0, 720, 0, 460)
+    MainFrame.Position = UDim2.new(0.5, -360, 0.5, -230)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 19)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.Active = true
+    MainFrame.Draggable = true
+    MainFrame.Parent = ScreenGui
 
-    local PCorner = Instance.new("UICorner")
-    PCorner.CornerRadius = UDim.new(0, 10)
-    PCorner.Parent = PanelFrame
+    local MCorner = Instance.new("UICorner")
+    MCorner.CornerRadius = UDim.new(0, 8)
+    MCorner.Parent = MainFrame
 
-    local PStroke = Instance.new("UIStroke")
-    PStroke.Color = Color3.fromRGB(72, 27, 117)
-    PStroke.Thickness = 2
-    PStroke.Parent = PanelFrame
+    local MStroke = Instance.new("UIStroke")
+    MStroke.Color = Color3.fromRGB(30, 30, 40)
+    MStroke.Thickness = 1
+    MStroke.Parent = MainFrame
 
-    local PTitle = Instance.new("TextLabel")
-    PTitle.Size = UDim2.new(1, 0, 0, 45)
-    PTitle.Position = UDim2.new(0, 0, 0, 0)
-    PTitle.BackgroundColor3 = Color3.fromRGB(18, 6, 31)
-    PTitle.Text = "  01Scripts | Panel 2 (Activo)"
-    PTitle.TextColor3 = Color3.fromRGB(177, 77, 239)
-    PTitle.TextSize = 14
-    PTitle.Font = Enum.Font.GothamBold
-    PTitle.TextXAlignment = Enum.TextXAlignment.Left
-    PTitle.Parent = PanelFrame
+    -- Barra superior
+    local TopBar = Instance.new("Frame")
+    TopBar.Size = UDim2.new(1, 0, 0, 50)
+    TopBar.BackgroundTransparency = 1
+    TopBar.Parent = MainFrame
 
-    local TitleCorner = Instance.new("UICorner")
-    TitleCorner.CornerRadius = UDim.new(0, 10)
-    TitleCorner.Parent = PTitle
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Size = UDim2.new(0, 300, 0, 22)
+    TitleLabel.Position = UDim2.new(0, 18, 0, 12)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Text = "01Scripts X 01Hub"
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.TextSize = 14
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TitleLabel.Parent = TopBar
 
-    local CloseBtn = Instance.new("TextButton")
-    CloseBtn.Size = UDim2.new(0, 30, 0, 30)
-    CloseBtn.Position = UDim2.new(1, -35, 0, 7)
-    CloseBtn.BackgroundTransparency = 1
-    CloseBtn.Text = "✕"
-    CloseBtn.TextColor3 = Color3.fromRGB(255, 85, 85)
-    CloseBtn.TextSize = 16
-    CloseBtn.Font = Enum.Font.GothamBold
-    CloseBtn.Parent = PTitle
+    local SubLabel = Instance.new("TextLabel")
+    SubLabel.Size = UDim2.new(0, 300, 0, 16)
+    SubLabel.Position = UDim2.new(0, 18, 0, 32)
+    SubLabel.BackgroundTransparency = 1
+    SubLabel.Text = "Key System | 01Hub"
+    SubLabel.TextColor3 = Color3.fromRGB(110, 110, 125)
+    SubLabel.TextSize = 11
+    SubLabel.Font = Enum.Font.Gotham
+    SubLabel.TextXAlignment = Enum.TextXAlignment.Left
+    SubLabel.Parent = TopBar
 
-    CloseBtn.MouseButton1Click:Connect(function()
-        MainGui:Destroy()
+    -- Botones Minimizar y Cerrar
+    local CloseButton = Instance.new("TextButton")
+    CloseButton.Size = UDim2.new(0, 25, 0, 25)
+    CloseButton.Position = UDim2.new(1, -35, 0, 12)
+    CloseButton.BackgroundTransparency = 1
+    CloseButton.Text = "✕"
+    CloseButton.TextColor3 = Color3.fromRGB(255, 60, 60)
+    CloseButton.TextSize = 14
+    CloseButton.Font = Enum.Font.GothamBold
+    CloseButton.Parent = TopBar
+
+    CloseButton.MouseButton1Click:Connect(function()
+        ScreenGui:Destroy()
     end)
 
-    local ContentContainer = Instance.new("ScrollingFrame")
-    ContentContainer.Size = UDim2.new(1, -20, 1, -60)
-    ContentContainer.Position = UDim2.new(0, 10, 0, 50)
-    ContentContainer.BackgroundTransparency = 1
-    ContentContainer.CanvasSize = UDim2.new(0, 0, 2, 0)
-    ContentContainer.ScrollBarThickness = 4
-    ContentContainer.Parent = PanelFrame
+    local MinimizeButton = Instance.new("TextButton")
+    MinimizeButton.Size = UDim2.new(0, 25, 0, 25)
+    MinimizeButton.Position = UDim2.new(1, -65, 0, 12)
+    MinimizeButton.BackgroundTransparency = 1
+    MinimizeButton.Text = "-"
+    MinimizeButton.TextColor3 = Color3.fromRGB(150, 150, 165)
+    MinimizeButton.TextSize = 16
+    MinimizeButton.Font = Enum.Font.GothamBold
+    MinimizeButton.Parent = TopBar
 
-    local UIListLayout = Instance.new("UIListLayout")
-    UIListLayout.Padding = UDim.new(0, 10)
-    UIListLayout.Parent = ContentContainer
+    local minimized = false
+    MinimizeButton.MouseButton1Click:Connect(function()
+        minimized = not minimized
+        -- Ocultar contenedor principal si se minimiza
+    end)
 
-    -- Función para crear toggles funcionales
+    -- Barra lateral izquierda
+    local SideBar = Instance.new("Frame")
+    SideBar.Size = UDim2.new(0, 210, 1, -55)
+    SideBar.Position = UDim2.new(0, 0, 0, 55)
+    SideBar.BackgroundColor3 = Color3.fromRGB(11, 11, 14)
+    SideBar.BorderSizePixel = 0
+    SideBar.Parent = MainFrame
+
+    local MainText = Instance.new("TextLabel")
+    MainText.Size = UDim2.new(1, -20, 0, 20)
+    MainText.Position = UDim2.new(0, 18, 0, 15)
+    MainText.BackgroundTransparency = 1
+    MainText.Text = "MAIN"
+    MainText.TextColor3 = Color3.fromRGB(100, 100, 115)
+    MainText.TextSize = 11
+    MainText.Font = Enum.Font.GothamBold
+    MainText.TextXAlignment = Enum.TextXAlignment.Left
+    MainText.Parent = SideBar
+
+    local VisualTab = Instance.new("TextButton")
+    VisualTab.Size = UDim2.new(1, -24, 0, 42)
+    VisualTab.Position = UDim2.new(0, 12, 0, 42)
+    VisualTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56) -- Tono morado seleccionado
+    VisualTab.TextColor3 = Color3.fromRGB(235, 130, 255) -- Texto rosado/morado claro
+    VisualTab.Text = "    Visual"
+    VisualTab.TextSize = 13
+    VisualTab.Font = Enum.Font.GothamBold
+    VisualTab.TextXAlignment = Enum.TextXAlignment.Left
+    VisualTab.Parent = SideBar
+
+    local VTCorner = Instance.new("UICorner")
+    VTCorner.CornerRadius = UDim.new(0, 8)
+    VTCorner.Parent = VisualTab
+
+    -- Contenedor derecho (Opciones)
+    local Container = Instance.new("Frame")
+    Container.Size = UDim2.new(1, -230, 1, -70)
+    Container.Position = UDim2.new(0, 220, 0, 60)
+    Container.BackgroundTransparency = 1
+    Container.Parent = MainFrame
+
+    local UIList = Instance.new("UIListLayout")
+    UIList.Padding = UDim.new(0, 12)
+    UIList.Parent = Container
+
+    -- Función para crear toggles idénticos a la imagen
     local function CreateToggle(name, callback)
-        local ToggleBtn = Instance.new("TextButton")
-        ToggleBtn.Size = UDim2.new(1, 0, 0, 40)
-        ToggleBtn.BackgroundColor3 = Color3.fromRGB(23, 8, 38)
-        ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        ToggleBtn.Text = "  " .. name .. ": [ OFF ]"
-        ToggleBtn.TextSize = 13
-        ToggleBtn.Font = Enum.Font.Gotham
-        ToggleBtn.TextXAlignment = Enum.TextXAlignment.Left
-        ToggleBtn.Parent = ContentContainer
+        local ToggleFrame = Instance.new("Frame")
+        ToggleFrame.Size = UDim2.new(1, 0, 0, 50)
+        ToggleFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
+        ToggleFrame.BorderSizePixel = 0
+        ToggleFrame.Parent = Container
 
-        local TCorner = Instance.new("UICorner")
-        TCorner.CornerRadius = UDim.new(0, 6)
-        TCorner.Parent = ToggleBtn
+        local TFCorner = Instance.new("UICorner")
+        TFCorner.CornerRadius = UDim.new(0, 8)
+        TFCorner.Parent = ToggleFrame
 
-        local state = false
-        ToggleBtn.MouseButton1Click:Connect(function()
-            state = not state
-            if state then
-                ToggleBtn.Text = "  " .. name .. ": [ ON ]"
-                ToggleBtn.BackgroundColor3 = Color3.fromRGB(72, 27, 117)
+        local Label = Instance.new("TextLabel")
+        Label.Size = UDim2.new(0, 200, 1, 0)
+        Label.Position = UDim2.new(0, 18, 0, 0)
+        Label.BackgroundTransparency = 1
+        Label.Text = name
+        Label.TextColor3 = Color3.fromRGB(220, 220, 230)
+        Label.TextSize = 13
+        Label.Font = Enum.Font.Gotham
+        Label.TextXAlignment = Enum.TextXAlignment.Left
+        Label.Parent = ToggleFrame
+
+        -- Switch botón estilo pastilla
+        local SwitchBg = Instance.new("TextButton")
+        SwitchBg.Size = UDim2.new(0, 46, 0, 24)
+        SwitchBg.Position = UDim2.new(1, -62, 0.5, -12)
+        SwitchBg.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+        SwitchBg.Text = ""
+        SwitchBg.Parent = ToggleFrame
+
+        local SBCorner = Instance.new("UICorner")
+        SBCorner.CornerRadius = UDim.new(1, 0)
+        SBCorner.Parent = SwitchBg
+
+        local Knob = Instance.new("Frame")
+        Knob.Size = UDim2.new(0, 18, 0, 18)
+        Knob.Position = UDim2.new(0, 3, 0.5, -9)
+        Knob.BackgroundColor3 = Color3.fromRGB(240, 240, 250)
+        Knob.Parent = SwitchBg
+
+        local KCorner = Instance.new("UICorner")
+        KCorner.CornerRadius = UDim.new(1, 0)
+        KCorner.Parent = Knob
+
+        local enabled = false
+        SwitchBg.MouseButton1Click:Connect(function()
+            enabled = not enabled
+            if enabled then
+                SwitchBg.BackgroundColor3 = Color3.fromRGB(162, 57, 239) -- Morado activo
+                Knob:TweenPosition(UDim2.new(1, -21, 0.5, -9), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true)
             else
-                ToggleBtn.Text = "  " .. name .. ": [ OFF ]"
-                ToggleBtn.BackgroundColor3 = Color3.fromRGB(23, 8, 38)
+                SwitchBg.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+                Knob:TweenPosition(UDim2.new(0, 3, 0.5, -9), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true)
             end
-            pcall(function() callback(state) end)
+            pcall(function() callback(enabled) end)
         end)
     end
 
-    -- Secciones y funciones activas del panel
-    CreateToggle("ESP Box / Chams", function(state)
-        -- Código o lógica de ESP aquí
+    -- Toggles de funciones
+    CreateToggle("ESP", function(state)
+        -- Código de ESP aquí
     end)
 
-    CreateToggle("Aimbot / Silent Aim", function(state)
-        -- Código o lógica de Aimbot aquí
+    CreateToggle("Lines", function(state)
+        -- Código de Líneas / Tracers aquí
     end)
 
-    CreateToggle("FOV Circle", function(state)
-        -- Código o lógica de FOV aquí
+    CreateToggle("Health", function(state)
+        -- Código de Health aquí
     end)
 end
 
-VerifyBtn.MouseButton1Click:Connect(function()
-    local enteredKey = TextBox.Text:gsub("%s+", "")
-    if enteredKey == "" then
-        StatusLabel.Text = "⚠️ Introduce una key."
+VerifyButton.MouseButton1Click:Connect(function()
+    local userKey = KeyInput.Text:gsub("%s+", "")
+    if userKey == "" then
+        StatusMsg.Text = "⚠️ Escribe una key válida."
         return
     end
 
-    StatusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
-    StatusLabel.Text = "Verificando..."
+    StatusMsg.TextColor3 = Color3.fromRGB(255, 200, 0)
+    StatusMsg.Text = "Verificando clave..."
 
     task.spawn(function()
-        local isValid = verifyKey(enteredKey)
+        local isValid = verifyKey(userKey)
         if isValid then
-            StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 150)
-            StatusLabel.Text = "¡Acceso concedido!"
-            task.wait(0.5)
+            StatusMsg.TextColor3 = Color3.fromRGB(0, 255, 150)
+            StatusMsg.Text = "¡Acceso concedido!"
+            task.wait(0.4)
             OpenMainPanel()
         else
-            StatusLabel.TextColor3 = Color3.fromRGB(255, 85, 85)
-            StatusLabel.Text = "❌ Key inválida para el Panel 2."
+            StatusMsg.TextColor3 = Color3.fromRGB(255, 85, 85)
+            StatusMsg.Text = "❌ Key incorrecta o no pertenece al Panel 2."
         end
     end)
 end)

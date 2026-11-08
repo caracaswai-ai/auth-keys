@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (+18% Tamaño, Raycast, Líneas Arriba + Team Check)
+-- 01Scripts | Panel 2 (+15% Tamaño Extra, Raycast, Líneas Arriba + Sin Team Check)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -115,7 +115,7 @@ StatusMsg.TextXAlignment = Enum.TextXAlignment.Center
 StatusMsg.Parent = LoginFrame
 
 -- ==========================================
--- PANEL PRINCIPAL CON ESP AMPLIADO Y TEAM CHECK
+-- PANEL PRINCIPAL CON ESP AMPLIADO (+15% EXTRA)
 -- ==========================================
 local function OpenMainPanel()
     LoginGui:Destroy()
@@ -289,7 +289,7 @@ local function OpenMainPanel()
     Container.Size = UDim2.new(1, -230, 1, -20)
     Container.Position = UDim2.new(0, 220, 0, 10)
     Container.BackgroundTransparency = 1
-    Container.CanvasSize = UDim2.new(0, 0, 0, 210)
+    Container.CanvasSize = UDim2.new(0, 0, 0, 160)
     Container.ScrollBarThickness = 3
     Container.Parent = ContentHolder
 
@@ -300,7 +300,6 @@ local function OpenMainPanel()
     local ESP_Enabled = false
     local Lines_Enabled = false
     local Health_Enabled = false
-    local TeamCheck_Enabled = false
 
     local function CreateToggle(name, callback)
         local ToggleFrame = Instance.new("Frame")
@@ -360,7 +359,7 @@ local function OpenMainPanel()
     end
 
     -- ==========================================
-    -- RENDERIZADO CON ESP AMPLIADO (+18% EXTRA), RAYCAST Y TEAM CHECK
+    -- RENDERIZADO CON ESP AMPLIADO (+15% ADICIONAL) Y RAYCAST
     -- ==========================================
     local espCache = {}
     local raycastParams = RaycastParams.new()
@@ -388,132 +387,122 @@ local function OpenMainPanel()
 
         for _, player in ipairs(Players:GetPlayers()) do
             if player ~= LocalPlayer and player.Character then
-                -- Comprobación de Team Check: si está activo y son del mismo equipo, se omite
-                local isTeammate = false
-                if TeamCheck_Enabled and LocalPlayer.Team and player.Team and LocalPlayer.Team == player.Team then
-                    isTeammate = true
-                end
+                local char = player.Character
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                local humanoid = char:FindFirstChildOfClass("Humanoid")
+                local head = char:FindFirstChild("Head")
 
-                if isTeammate then
-                    removeEsp(player)
-                else
-                    local char = player.Character
-                    local hrp = char:FindFirstChild("HumanoidRootPart")
-                    local humanoid = char:FindFirstChildOfClass("Humanoid")
-                    local head = char:FindFirstChild("Head")
+                if hrp and humanoid and head and localHrp then
+                    local distance = (hrp.Position - localHrp.Position).Magnitude
 
-                    if hrp and humanoid and head and localHrp then
-                        local distance = (hrp.Position - localHrp.Position).Magnitude
+                    if distance <= 500 then
+                        if not espCache[player] then
+                            espCache[player] = {}
+                            
+                            local box = Drawing.new("Square")
+                            box.Visible = false
+                            box.Thickness = 1
+                            box.Filled = false
+                            espCache[player].box = box
 
-                        if distance <= 500 then
-                            if not espCache[player] then
-                                espCache[player] = {}
-                                
-                                local box = Drawing.new("Square")
-                                box.Visible = false
-                                box.Thickness = 1
-                                box.Filled = false
-                                espCache[player].box = box
+                            local line = Drawing.new("Line")
+                            line.Visible = false
+                            line.Thickness = 1.3
+                            espCache[player].line = line
 
-                                local line = Drawing.new("Line")
-                                line.Visible = false
-                                line.Thickness = 1.2
-                                espCache[player].line = line
+                            local healthBg = Drawing.new("Square")
+                            healthBg.Visible = false
+                            healthBg.Color = Color3.fromRGB(0, 0, 0)
+                            healthBg.Filled = true
+                            espCache[player].healthBg = healthBg
 
-                                local healthBg = Drawing.new("Square")
-                                healthBg.Visible = false
-                                healthBg.Color = Color3.fromRGB(0, 0, 0)
-                                healthBg.Filled = true
-                                espCache[player].healthBg = healthBg
+                            local healthBar = Drawing.new("Square")
+                            healthBar.Visible = false
+                            healthBar.Filled = true
+                            espCache[player].healthBar = healthBar
+                        end
 
-                                local healthBar = Drawing.new("Square")
-                                healthBar.Visible = false
-                                healthBar.Filled = true
-                                espCache[player].healthBar = healthBar
-                            end
+                        local cache = espCache[player]
+                        local isAlive = humanoid.Health > 0
 
-                            local cache = espCache[player]
-                            local isAlive = humanoid.Health > 0
-
-                            -- Comprobación de pared (Raycast)
-                            local isBehindWall = false
-                            if head and Camera and isAlive then
-                                local origin = Camera.CFrame.Position
-                                local direction = (head.Position - origin)
-                                local rayResult = workspace:Raycast(origin, direction, raycastParams)
-                                
-                                if rayResult then
-                                    local hitInstance = rayResult.Instance
-                                    if not hitInstance:IsDescendantOf(char) then
-                                        isBehindWall = true
-                                    end
+                        -- Comprobación de pared (Raycast)
+                        local isBehindWall = false
+                        if head and Camera and isAlive then
+                            local origin = Camera.CFrame.Position
+                            local direction = (head.Position - origin)
+                            local rayResult = workspace:Raycast(origin, direction, raycastParams)
+                            
+                            if rayResult then
+                                local hitInstance = rayResult.Instance
+                                if not hitInstance:IsDescendantOf(char) then
+                                    isBehindWall = true
                                 end
                             end
+                        end
 
-                            -- Color dinámico: Verde si está detrás de pared, Rojo si está descubierto
-                            local dynamicColor = isBehindWall and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+                        -- Color dinámico: Verde si está detrás de pared, Rojo si está descubierto
+                        local dynamicColor = isBehindWall and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
 
-                            local headPos, headOnScreen = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
-                            local legPos, legOnScreen = Camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0))
+                        local headPos, headOnScreen = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
+                        local legPos, legOnScreen = Camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0))
 
-                            if headOnScreen or legOnScreen then
-                                local baseHeight = math.abs(headPos.Y - legPos.Y)
-                                -- Tamaño anterior incrementado un 18% adicional (0.413 * 1.18 = 0.487)
-                                local height = baseHeight * 0.487
-                                local width = height / 2
-                                local x = headPos.X - width / 2
-                                local y = headPos.Y + (baseHeight * 0.325)
+                        if headOnScreen or legOnScreen then
+                            local baseHeight = math.abs(headPos.Y - legPos.Y)
+                            -- Tamaño anterior (0.487) incrementado un 15% adicional (0.487 * 1.15 = 0.56)
+                            local height = baseHeight * 0.56
+                            local width = height / 2
+                            local x = headPos.X - width / 2
+                            local y = headPos.Y + (baseHeight * 0.325)
 
-                                -- ESP Box
-                                if ESP_Enabled and isAlive then
-                                    cache.box.Visible = true
-                                    cache.box.Size = Vector2.new(width, height)
-                                    cache.box.Position = Vector2.new(x, y)
-                                    cache.box.Color = dynamicColor
-                                else
-                                    cache.box.Visible = false
-                                end
-
-                                -- Lines / Tracers (Desde la parte superior central de la pantalla)
-                                if Lines_Enabled and isAlive then
-                                    cache.line.Visible = true
-                                    cache.line.From = Vector2.new(Camera.ViewportSize.X / 2, 0)
-                                    cache.line.To = Vector2.new(headPos.X, y + height)
-                                    cache.line.Color = dynamicColor
-                                    playersWithLinesCount = playersWithLinesCount + 1
-                                else
-                                    cache.line.Visible = false
-                                end
-
-                                -- Health Bar
-                                if Health_Enabled and isAlive then
-                                    local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
-                                    local hbHeight = height * healthPercent
-
-                                    cache.healthBg.Visible = true
-                                    cache.healthBg.Size = Vector2.new(4, height + 2)
-                                    cache.healthBg.Position = Vector2.new(x - 6, y - 1)
-
-                                    cache.healthBar.Visible = true
-                                    cache.healthBar.Size = Vector2.new(2, hbHeight)
-                                    cache.healthBar.Position = Vector2.new(x - 5.5, y + (height - hbHeight))
-                                    cache.healthBar.Color = Color3.fromRGB(255 * (1 - healthPercent), 255 * healthPercent, 0)
-                                else
-                                    cache.healthBg.Visible = false
-                                    cache.healthBar.Visible = false
-                                end
+                            -- ESP Box
+                            if ESP_Enabled and isAlive then
+                                cache.box.Visible = true
+                                cache.box.Size = Vector2.new(width, height)
+                                cache.box.Position = Vector2.new(x, y)
+                                cache.box.Color = dynamicColor
                             else
                                 cache.box.Visible = false
+                            end
+
+                            -- Lines / Tracers (Desde la parte superior central de la pantalla)
+                            if Lines_Enabled and isAlive then
+                                cache.line.Visible = true
+                                cache.line.From = Vector2.new(Camera.ViewportSize.X / 2, 0)
+                                cache.line.To = Vector2.new(headPos.X, y + height)
+                                cache.line.Color = dynamicColor
+                                playersWithLinesCount = playersWithLinesCount + 1
+                            else
                                 cache.line.Visible = false
+                            end
+
+                            -- Health Bar
+                            if Health_Enabled and isAlive then
+                                local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
+                                local hbHeight = height * healthPercent
+
+                                cache.healthBg.Visible = true
+                                cache.healthBg.Size = Vector2.new(4.5, height + 2)
+                                cache.healthBg.Position = Vector2.new(x - 6.5, y - 1)
+
+                                cache.healthBar.Visible = true
+                                cache.healthBar.Size = Vector2.new(2.2, hbHeight)
+                                cache.healthBar.Position = Vector2.new(x - 6, y + (height - hbHeight))
+                                cache.healthBar.Color = Color3.fromRGB(255 * (1 - healthPercent), 255 * healthPercent, 0)
+                            else
                                 cache.healthBg.Visible = false
                                 cache.healthBar.Visible = false
                             end
                         else
-                            removeEsp(player)
+                            cache.box.Visible = false
+                            cache.line.Visible = false
+                            cache.healthBg.Visible = false
+                            cache.healthBar.Visible = false
                         end
                     else
                         removeEsp(player)
                     end
+                else
+                    removeEsp(player)
                 end
             else
                 removeEsp(player)
@@ -546,10 +535,6 @@ local function OpenMainPanel()
 
     CreateToggle("Health", function(state)
         Health_Enabled = state
-    end)
-
-    CreateToggle("Team Check", function(state)
-        TeamCheck_Enabled = state
     end)
 end
 

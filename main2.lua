@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (Límite 500m, ESP Adaptativo, Tecla K)
+-- 01Scripts | Panel 2 (Reducido 65%, Límite 500m, Tecla K)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -114,7 +114,7 @@ StatusMsg.TextXAlignment = Enum.TextXAlignment.Center
 StatusMsg.Parent = LoginFrame
 
 -- ==========================================
--- PANEL PRINCIPAL CON LÍMITE DE 500 METROS
+-- PANEL PRINCIPAL CON ESP COMPACTO (35% TAMAÑO ORIGINAL)
 -- ==========================================
 local function OpenMainPanel()
     LoginGui:Destroy()
@@ -142,7 +142,6 @@ local function OpenMainPanel()
     MStroke.Thickness = 1
     MStroke.Parent = MainFrame
 
-    -- Barra superior
     local TopBar = Instance.new("Frame")
     TopBar.Size = UDim2.new(1, 0, 0, 55)
     TopBar.BackgroundTransparency = 1
@@ -176,7 +175,6 @@ local function OpenMainPanel()
     ContentHolder.BackgroundTransparency = 1
     ContentHolder.Parent = MainFrame
 
-    -- Botón Cerrar (X)
     local CloseButton = Instance.new("TextButton")
     CloseButton.Size = UDim2.new(0, 30, 0, 30)
     CloseButton.Position = UDim2.new(1, -40, 0.5, -15)
@@ -191,7 +189,6 @@ local function OpenMainPanel()
         ScreenGui:Destroy()
     end)
 
-    -- Botón Minimizar (-) al lado de la X
     local MinimizeButton = Instance.new("TextButton")
     MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
     MinimizeButton.Position = UDim2.new(1, -75, 0.5, -15)
@@ -209,14 +206,12 @@ local function OpenMainPanel()
         MainFrame.Size = isMinimized and UDim2.new(0, 720, 0, 55) or UDim2.new(0, 720, 0, 460)
     end)
 
-    -- Tecla Rápida K para ocultar/mostrar todo el panel
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if not gameProcessed and input.KeyCode == Enum.KeyCode.K then
             MainFrame.Visible = not MainFrame.Visible
         end
     end)
 
-    -- Barra lateral izquierda
     local SideBar = Instance.new("Frame")
     SideBar.Size = UDim2.new(0, 210, 1, 0)
     SideBar.BackgroundColor3 = Color3.fromRGB(11, 11, 14)
@@ -249,7 +244,6 @@ local function OpenMainPanel()
     VTCorner.CornerRadius = UDim.new(0, 8)
     VTCorner.Parent = VisualTab
 
-    -- Contenedor de opciones (Derecha)
     local Container = Instance.new("Frame")
     Container.Size = UDim2.new(1, -230, 1, -20)
     Container.Position = UDim2.new(0, 220, 0, 10)
@@ -260,12 +254,10 @@ local function OpenMainPanel()
     UIList.Padding = UDim.new(0, 12)
     UIList.Parent = Container
 
-    -- Variables de Estado
     local ESP_Enabled = false
     local Lines_Enabled = false
     local Health_Enabled = false
 
-    -- Función creadora de Toggles
     local function CreateToggle(name, callback)
         local ToggleFrame = Instance.new("Frame")
         ToggleFrame.Size = UDim2.new(1, 0, 0, 50)
@@ -324,7 +316,7 @@ local function OpenMainPanel()
     end
 
     -- ==========================================
-    -- RENDERIZADO CON LÍMITE DE 500 METROS
+    -- RENDERIZADO COMPACTADO AL 35% DE SU TAMAÑO
     -- ==========================================
     local espCache = {}
 
@@ -350,7 +342,6 @@ local function OpenMainPanel()
                 local head = char:FindFirstChild("Head")
 
                 if hrp and humanoid and head and localHrp then
-                    -- Verificar distancia máxima de 500 studs (metros)
                     local distance = (hrp.Position - localHrp.Position).Magnitude
 
                     if distance <= 500 then
@@ -360,7 +351,7 @@ local function OpenMainPanel()
                             local box = Drawing.new("Square")
                             box.Visible = false
                             box.Color = Color3.fromRGB(162, 57, 239)
-                            box.Thickness = 1.5
+                            box.Thickness = 1
                             box.Filled = false
                             espCache[player].box = box
 
@@ -390,10 +381,12 @@ local function OpenMainPanel()
                         local legPos, legOnScreen = camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0))
 
                         if headOnScreen or legOnScreen then
-                            local height = math.abs(headPos.Y - legPos.Y)
+                            -- Reducción del tamaño al 35% (bajada del 65%)
+                            local baseHeight = math.abs(headPos.Y - legPos.Y)
+                            local height = baseHeight * 0.35
                             local width = height / 2
                             local x = headPos.X - width / 2
-                            local y = headPos.Y
+                            local y = headPos.Y + (baseHeight * 0.325)
 
                             -- ESP Box
                             if ESP_Enabled and humanoid.Health > 0 then
@@ -419,12 +412,12 @@ local function OpenMainPanel()
                                 local hbHeight = height * healthPercent
 
                                 cache.healthBg.Visible = true
-                                cache.healthBg.Size = Vector2.new(4, height + 2)
-                                cache.healthBg.Position = Vector2.new(x - 7, y - 1)
+                                cache.healthBg.Size = Vector2.new(3, height + 2)
+                                cache.healthBg.Position = Vector2.new(x - 5, y - 1)
 
                                 cache.healthBar.Visible = true
-                                cache.healthBar.Size = Vector2.new(2, hbHeight)
-                                cache.healthBar.Position = Vector2.new(x - 6, y + (height - hbHeight))
+                                cache.healthBar.Size = Vector2.new(1.5, hbHeight)
+                                cache.healthBar.Position = Vector2.new(x - 4.5, y + (height - hbHeight))
                                 cache.healthBar.Color = Color3.fromRGB(255 * (1 - healthPercent), 255 * healthPercent, 0)
                             else
                                 cache.healthBg.Visible = false
@@ -437,7 +430,6 @@ local function OpenMainPanel()
                             cache.healthBar.Visible = false
                         end
                     else
-                        -- Fuera del rango de 500 metros
                         removeEsp(player)
                     end
                 else

@@ -1,6 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (Funciones ESP, Lines, Health + Tecla K)
--- Autenticación exclusiva con keys2.json
+-- 01Scripts | Panel 2 (UI Perfecta, Tecla K y Funciones)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -115,7 +114,7 @@ StatusMsg.TextXAlignment = Enum.TextXAlignment.Center
 StatusMsg.Parent = LoginFrame
 
 -- ==========================================
--- PANEL PRINCIPAL CON FUNCIONES ESP REALES
+-- PANEL PRINCIPAL CON BOTONES Y TECLA K
 -- ==========================================
 local function OpenMainPanel()
     LoginGui:Destroy()
@@ -171,21 +170,21 @@ local function OpenMainPanel()
     SubLabel.TextXAlignment = Enum.TextXAlignment.Left
     SubLabel.Parent = TopBar
 
-    -- Contenedor de Contenido (Para ocultarlo al minimizar)
+    -- Contenedor del contenido interno
     local ContentHolder = Instance.new("Frame")
     ContentHolder.Size = UDim2.new(1, 0, 1, -55)
     ContentHolder.Position = UDim2.new(0, 0, 0, 55)
     ContentHolder.BackgroundTransparency = 1
     ContentHolder.Parent = MainFrame
 
-    -- Botón Cerrar (X)
+    -- Botón Cerrar (X) - Bien ubicado a la derecha
     local CloseButton = Instance.new("TextButton")
-    CloseButton.Size = UDim2.new(0, 25, 0, 25)
-    CloseButton.Position = UDim2.new(1, -35, 0, 15)
+    CloseButton.Size = UDim2.new(0, 30, 0, 30)
+    CloseButton.Position = UDim2.new(1, -40, 0.5, -15)
     CloseButton.BackgroundTransparency = 1
     CloseButton.Text = "✕"
     CloseButton.TextColor3 = Color3.fromRGB(255, 60, 60)
-    CloseButton.TextSize = 14
+    CloseButton.TextSize = 16
     CloseButton.Font = Enum.Font.GothamBold
     CloseButton.Parent = TopBar
 
@@ -193,14 +192,14 @@ local function OpenMainPanel()
         ScreenGui:Destroy()
     end)
 
-    -- Botón Minimizar (-) al lado de la X
+    -- Botón Minimizar (-) al lado izquierdo de la X
     local MinimizeButton = Instance.new("TextButton")
-    MinimizeButton.Size = UDim2.new(0, 25, 0, 25)
-    MinimizeButton.Position = UDim2.new(1, -65, 0, 15)
+    MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
+    MinimizeButton.Position = UDim2.new(1, -75, 0.5, -15)
     MinimizeButton.BackgroundTransparency = 1
     MinimizeButton.Text = "-"
-    MinimizeButton.TextColor3 = Color3.fromRGB(150, 150, 165)
-    MinimizeButton.TextSize = 18
+    MinimizeButton.TextColor3 = Color3.fromRGB(180, 180, 195)
+    MinimizeButton.TextSize = 20
     MinimizeButton.Font = Enum.Font.GothamBold
     MinimizeButton.Parent = TopBar
 
@@ -211,7 +210,7 @@ local function OpenMainPanel()
         MainFrame.Size = isMinimized and UDim2.new(0, 720, 0, 55) or UDim2.new(0, 720, 0, 460)
     end)
 
-    -- Atajo Tecla K para ocultar/mostrar todo el panel
+    -- Tecla Rápida K para ocultar/mostrar todo el panel
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if not gameProcessed and input.KeyCode == Enum.KeyCode.K then
             MainFrame.Visible = not MainFrame.Visible
@@ -262,7 +261,7 @@ local function OpenMainPanel()
     UIList.Padding = UDim.new(0, 12)
     UIList.Parent = Container
 
-    -- Variables de Estado para las Funciones
+    -- Variables de Estado
     local ESP_Enabled = false
     local Lines_Enabled = false
     local Health_Enabled = false
@@ -326,7 +325,7 @@ local function OpenMainPanel()
     end
 
     -- ==========================================
-    -- SISTEMA DE ESP / LINES / HEALTH EN TIEMPO REAL
+    -- SISTEMA DE ESP / LINES / HEALTH
     -- ==========================================
     local espCache = {}
 
@@ -349,7 +348,7 @@ local function OpenMainPanel()
 
                 if not espCache[player] then
                     espCache[player] = {}
-                    -- Caja ESP
+                    
                     local box = Drawing.new("Square")
                     box.Visible = false
                     box.Color = Color3.fromRGB(162, 57, 239)
@@ -357,21 +356,18 @@ local function OpenMainPanel()
                     box.Filled = false
                     espCache[player].box = box
 
-                    -- Línea / Tracer
                     local line = Drawing.new("Line")
                     line.Visible = false
                     line.Color = Color3.fromRGB(235, 130, 255)
                     line.Thickness = 1
                     espCache[player].line = line
 
-                    -- Barra de vida Fondo
                     local healthBg = Drawing.new("Square")
                     healthBg.Visible = false
                     healthBg.Color = Color3.fromRGB(0, 0, 0)
                     healthBg.Filled = true
                     espCache[player].healthBg = healthBg
 
-                    -- Barra de vida Relleno
                     local healthBar = Drawing.new("Square")
                     healthBar.Visible = false
                     healthBar.Color = Color3.fromRGB(0, 255, 100)
@@ -390,7 +386,6 @@ local function OpenMainPanel()
                     local x = vector.X - w / 2
                     local y = vector.Y - h / 2
 
-                    -- Control de ESP Box
                     if ESP_Enabled then
                         cache.box.Visible = true
                         cache.box.Size = Vector2.new(w, h)
@@ -399,7 +394,6 @@ local function OpenMainPanel()
                         cache.box.Visible = false
                     end
 
-                    -- Control de Tracers (Lines)
                     if Lines_Enabled then
                         cache.line.Visible = true
                         cache.line.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
@@ -408,7 +402,6 @@ local function OpenMainPanel()
                         cache.line.Visible = false
                     end
 
-                    -- Control de Health Bar
                     if Health_Enabled then
                         local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
                         local hbHeight = h * healthPercent
@@ -441,7 +434,6 @@ local function OpenMainPanel()
         removeEsp(player)
     end)
 
-    -- Creación de los toggles en la interfaz
     CreateToggle("ESP", function(state)
         ESP_Enabled = state
     end)

@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (Reducido 65%, Límite 500m, Tecla K)
+-- 01Scripts | Panel 2 (Team Check, Tracers Arriba, +18% Tamaño, 500m, Tecla K)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -114,7 +114,7 @@ StatusMsg.TextXAlignment = Enum.TextXAlignment.Center
 StatusMsg.Parent = LoginFrame
 
 -- ==========================================
--- PANEL PRINCIPAL CON ESP COMPACTO (35% TAMAÑO ORIGINAL)
+-- PANEL PRINCIPAL CON TEAM CHECK Y TRACERS DESDE ARRIBA
 -- ==========================================
 local function OpenMainPanel()
     LoginGui:Destroy()
@@ -244,10 +244,12 @@ local function OpenMainPanel()
     VTCorner.CornerRadius = UDim.new(0, 8)
     VTCorner.Parent = VisualTab
 
-    local Container = Instance.new("Frame")
+    local Container = Instance.new("ScrollingFrame")
     Container.Size = UDim2.new(1, -230, 1, -20)
     Container.Position = UDim2.new(0, 220, 0, 10)
     Container.BackgroundTransparency = 1
+    Container.CanvasSize = UDim2.new(0, 0, 1.3, 0)
+    Container.ScrollBarThickness = 3
     Container.Parent = ContentHolder
 
     local UIList = Instance.new("UIListLayout")
@@ -257,6 +259,7 @@ local function OpenMainPanel()
     local ESP_Enabled = false
     local Lines_Enabled = false
     local Health_Enabled = false
+    local TeamCheck_Enabled = false
 
     local function CreateToggle(name, callback)
         local ToggleFrame = Instance.new("Frame")
@@ -316,7 +319,7 @@ local function OpenMainPanel()
     end
 
     -- ==========================================
-    -- RENDERIZADO COMPACTADO AL 35% DE SU TAMAÑO
+    -- RENDERIZADO CON TEAM CHECK Y TAMAÑO AJUSTADO (+18%)
     -- ==========================================
     local espCache = {}
 
@@ -342,9 +345,17 @@ local function OpenMainPanel()
                 local head = char:FindFirstChild("Head")
 
                 if hrp and humanoid and head and localHrp then
+                    -- Lógica de Team Check
+                    local isTeammate = false
+                    if TeamCheck_Enabled then
+                        if player.Team and LocalPlayer.Team and player.Team == LocalPlayer.Team then
+                            isTeammate = true
+                        end
+                    end
+
                     local distance = (hrp.Position - localHrp.Position).Magnitude
 
-                    if distance <= 500 then
+                    if distance <= 500 and not isTeammate then
                         if not espCache[player] then
                             espCache[player] = {}
                             
@@ -381,12 +392,12 @@ local function OpenMainPanel()
                         local legPos, legOnScreen = camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0))
 
                         if headOnScreen or legOnScreen then
-                            -- Reducción del tamaño al 35% (bajada del 65%)
+                            -- Tamaño aumentado un 18% respecto al anterior (0.35 * 1.18 = 0.413)
                             local baseHeight = math.abs(headPos.Y - legPos.Y)
-                            local height = baseHeight * 0.35
+                            local height = baseHeight * 0.413
                             local width = height / 2
                             local x = headPos.X - width / 2
-                            local y = headPos.Y + (baseHeight * 0.325)
+                            local y = headPos.Y + (baseHeight * 0.29)
 
                             -- ESP Box
                             if ESP_Enabled and humanoid.Health > 0 then
@@ -397,10 +408,10 @@ local function OpenMainPanel()
                                 cache.box.Visible = false
                             end
 
-                            -- Lines / Tracers
+                            -- Lines / Tracers desde la parte ARRIBA de la pantalla
                             if Lines_Enabled and humanoid.Health > 0 then
                                 cache.line.Visible = true
-                                cache.line.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
+                                cache.line.From = Vector2.new(camera.ViewportSize.X / 2, 0)
                                 cache.line.To = Vector2.new(headPos.X, y + height)
                             else
                                 cache.line.Visible = false
@@ -412,12 +423,12 @@ local function OpenMainPanel()
                                 local hbHeight = height * healthPercent
 
                                 cache.healthBg.Visible = true
-                                cache.healthBg.Size = Vector2.new(3, height + 2)
-                                cache.healthBg.Position = Vector2.new(x - 5, y - 1)
+                                cache.healthBg.Size = Vector2.new(3.5, height + 2)
+                                cache.healthBg.Position = Vector2.new(x - 6, y - 1)
 
                                 cache.healthBar.Visible = true
-                                cache.healthBar.Size = Vector2.new(1.5, hbHeight)
-                                cache.healthBar.Position = Vector2.new(x - 4.5, y + (height - hbHeight))
+                                cache.healthBar.Size = Vector2.new(1.7, hbHeight)
+                                cache.healthBar.Position = Vector2.new(x - 5.1, y + (height - hbHeight))
                                 cache.healthBar.Color = Color3.fromRGB(255 * (1 - healthPercent), 255 * healthPercent, 0)
                             else
                                 cache.healthBg.Visible = false
@@ -455,6 +466,10 @@ local function OpenMainPanel()
 
     CreateToggle("Health", function(state)
         Health_Enabled = state
+    end)
+
+    CreateToggle("Team Check", function(state)
+        TeamCheck_Enabled = state
     end)
 end
 

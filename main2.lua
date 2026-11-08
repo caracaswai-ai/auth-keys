@@ -1,11 +1,13 @@
 -- ==========================================
--- 01Scripts | Panel 2 (Diseño exacto idéntico)
+-- 01Scripts | Panel 2 (Funciones ESP, Lines, Health + Tecla K)
 -- Autenticación exclusiva con keys2.json
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
 local GITHUB_KEYS_URL = "https://raw.githubusercontent.com/caracaswai-ai/auth-keys/main/keys2.json"
@@ -113,7 +115,7 @@ StatusMsg.TextXAlignment = Enum.TextXAlignment.Center
 StatusMsg.Parent = LoginFrame
 
 -- ==========================================
--- PANEL PRINCIPAL (Diseño exacto Panel 1)
+-- PANEL PRINCIPAL CON FUNCIONES ESP REALES
 -- ==========================================
 local function OpenMainPanel()
     LoginGui:Destroy()
@@ -169,6 +171,14 @@ local function OpenMainPanel()
     SubLabel.TextXAlignment = Enum.TextXAlignment.Left
     SubLabel.Parent = TopBar
 
+    -- Contenedor de Contenido (Para ocultarlo al minimizar)
+    local ContentHolder = Instance.new("Frame")
+    ContentHolder.Size = UDim2.new(1, 0, 1, -55)
+    ContentHolder.Position = UDim2.new(0, 0, 0, 55)
+    ContentHolder.BackgroundTransparency = 1
+    ContentHolder.Parent = MainFrame
+
+    -- Botón Cerrar (X)
     local CloseButton = Instance.new("TextButton")
     CloseButton.Size = UDim2.new(0, 25, 0, 25)
     CloseButton.Position = UDim2.new(1, -35, 0, 15)
@@ -183,27 +193,37 @@ local function OpenMainPanel()
         ScreenGui:Destroy()
     end)
 
+    -- Botón Minimizar (-) al lado de la X
     local MinimizeButton = Instance.new("TextButton")
     MinimizeButton.Size = UDim2.new(0, 25, 0, 25)
     MinimizeButton.Position = UDim2.new(1, -65, 0, 15)
     MinimizeButton.BackgroundTransparency = 1
     MinimizeButton.Text = "-"
     MinimizeButton.TextColor3 = Color3.fromRGB(150, 150, 165)
-    MinimizeButton.TextSize = 16
+    MinimizeButton.TextSize = 18
     MinimizeButton.Font = Enum.Font.GothamBold
     MinimizeButton.Parent = TopBar
 
+    local isMinimized = false
     MinimizeButton.MouseButton1Click:Connect(function()
-        MainFrame.Visible = false
+        isMinimized = not isMinimized
+        ContentHolder.Visible = not isMinimized
+        MainFrame.Size = isMinimized and UDim2.new(0, 720, 0, 55) or UDim2.new(0, 720, 0, 460)
+    end)
+
+    -- Atajo Tecla K para ocultar/mostrar todo el panel
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if not gameProcessed and input.KeyCode == Enum.KeyCode.K then
+            MainFrame.Visible = not MainFrame.Visible
+        end
     end)
 
     -- Barra lateral izquierda
     local SideBar = Instance.new("Frame")
-    SideBar.Size = UDim2.new(0, 210, 1, -55)
-    SideBar.Position = UDim2.new(0, 0, 0, 55)
+    SideBar.Size = UDim2.new(0, 210, 1, 0)
     SideBar.BackgroundColor3 = Color3.fromRGB(11, 11, 14)
     SideBar.BorderSizePixel = 0
-    SideBar.Parent = MainFrame
+    SideBar.Parent = ContentHolder
 
     local MainText = Instance.new("TextLabel")
     MainText.Size = UDim2.new(1, -20, 0, 20)
@@ -233,16 +253,21 @@ local function OpenMainPanel()
 
     -- Contenedor de opciones (Derecha)
     local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(1, -230, 1, -70)
-    Container.Position = UDim2.new(0, 220, 0, 60)
+    Container.Size = UDim2.new(1, -230, 1, -20)
+    Container.Position = UDim2.new(0, 220, 0, 10)
     Container.BackgroundTransparency = 1
-    Container.Parent = MainFrame
+    Container.Parent = ContentHolder
 
     local UIList = Instance.new("UIListLayout")
     UIList.Padding = UDim.new(0, 12)
     UIList.Parent = Container
 
-    -- Función creadora de Toggles idéntica
+    -- Variables de Estado para las Funciones
+    local ESP_Enabled = false
+    local Lines_Enabled = false
+    local Health_Enabled = false
+
+    -- Función creadora de Toggles
     local function CreateToggle(name, callback)
         local ToggleFrame = Instance.new("Frame")
         ToggleFrame.Size = UDim2.new(1, 0, 0, 50)
@@ -300,17 +325,133 @@ local function OpenMainPanel()
         end)
     end
 
-    -- Opciones funcionales exactas
+    -- ==========================================
+    -- SISTEMA DE ESP / LINES / HEALTH EN TIEMPO REAL
+    -- ==========================================
+    local espCache = {}
+
+    local function removeEsp(player)
+        if espCache[player] then
+            if espCache[player].box then espCache[player].box:Remove() end
+            if espCache[player].line then espCache[player].line:Remove() end
+            if espCache[player].healthBar then espCache[player].healthBar:Remove() end
+            if espCache[player].healthBg then espCache[player].healthBg:Remove() end
+            espCache[player] = nil
+        end
+    end
+
+    RunService.RenderStepped:Connect(function()
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") then
+                local char = player.Character
+                local hrp = char.HumanoidRootPart
+                local humanoid = char.Humanoid
+
+                if not espCache[player] then
+                    espCache[player] = {}
+                    -- Caja ESP
+                    local box = Drawing.new("Square")
+                    box.Visible = false
+                    box.Color = Color3.fromRGB(162, 57, 239)
+                    box.Thickness = 1.5
+                    box.Filled = false
+                    espCache[player].box = box
+
+                    -- Línea / Tracer
+                    local line = Drawing.new("Line")
+                    line.Visible = false
+                    line.Color = Color3.fromRGB(235, 130, 255)
+                    line.Thickness = 1
+                    espCache[player].line = line
+
+                    -- Barra de vida Fondo
+                    local healthBg = Drawing.new("Square")
+                    healthBg.Visible = false
+                    healthBg.Color = Color3.fromRGB(0, 0, 0)
+                    healthBg.Filled = true
+                    espCache[player].healthBg = healthBg
+
+                    -- Barra de vida Relleno
+                    local healthBar = Drawing.new("Square")
+                    healthBar.Visible = false
+                    healthBar.Color = Color3.fromRGB(0, 255, 100)
+                    healthBar.Filled = true
+                    espCache[player].healthBar = healthBar
+                end
+
+                local cache = espCache[player]
+                local camera = workspace.CurrentCamera
+                local vector, onScreen = camera:WorldToViewportPoint(hrp.Position)
+
+                if onScreen and humanoid.Health > 0 then
+                    local scaleFactor = 1 / (vector.Z * math.tan(math.rad(camera.FieldOfView / 2)) * 2) * 1000
+                    local w = math.clamp(25 * scaleFactor, 15, 300)
+                    local h = math.clamp(35 * scaleFactor, 20, 500)
+                    local x = vector.X - w / 2
+                    local y = vector.Y - h / 2
+
+                    -- Control de ESP Box
+                    if ESP_Enabled then
+                        cache.box.Visible = true
+                        cache.box.Size = Vector2.new(w, h)
+                        cache.box.Position = Vector2.new(x, y)
+                    else
+                        cache.box.Visible = false
+                    end
+
+                    -- Control de Tracers (Lines)
+                    if Lines_Enabled then
+                        cache.line.Visible = true
+                        cache.line.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
+                        cache.line.To = Vector2.new(vector.X, vector.Y + h / 2)
+                    else
+                        cache.line.Visible = false
+                    end
+
+                    -- Control de Health Bar
+                    if Health_Enabled then
+                        local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
+                        local hbHeight = h * healthPercent
+
+                        cache.healthBg.Visible = true
+                        cache.healthBg.Size = Vector2.new(4, h + 2)
+                        cache.healthBg.Position = Vector2.new(x - 7, y - 1)
+
+                        cache.healthBar.Visible = true
+                        cache.healthBar.Size = Vector2.new(2, hbHeight)
+                        cache.healthBar.Position = Vector2.new(x - 6, y + (h - hbHeight))
+                        cache.healthBar.Color = Color3.fromRGB(255 * (1 - healthPercent), 255 * healthPercent, 0)
+                    else
+                        cache.healthBg.Visible = false
+                        cache.healthBar.Visible = false
+                    end
+                else
+                    cache.box.Visible = false
+                    cache.line.Visible = false
+                    cache.healthBg.Visible = false
+                    cache.healthBar.Visible = false
+                end
+            else
+                removeEsp(player)
+            end
+        end
+    end)
+
+    Players.PlayerRemoving:Connect(function(player)
+        removeEsp(player)
+    end)
+
+    -- Creación de los toggles en la interfaz
     CreateToggle("ESP", function(state)
-        -- Coloca tu función ESP aquí
+        ESP_Enabled = state
     end)
 
     CreateToggle("Lines", function(state)
-        -- Coloca tu función Lines aquí
+        Lines_Enabled = state
     end)
 
     CreateToggle("Health", function(state)
-        -- Coloca tu función Health aquí
+        Health_Enabled = state
     end)
 end
 

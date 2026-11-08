@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (UI Perfecta, Tecla K y Funciones)
+-- 01Scripts | Panel 2 (Límite 500m, ESP Adaptativo, Tecla K)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -114,7 +114,7 @@ StatusMsg.TextXAlignment = Enum.TextXAlignment.Center
 StatusMsg.Parent = LoginFrame
 
 -- ==========================================
--- PANEL PRINCIPAL CON BOTONES Y TECLA K
+-- PANEL PRINCIPAL CON LÍMITE DE 500 METROS
 -- ==========================================
 local function OpenMainPanel()
     LoginGui:Destroy()
@@ -170,14 +170,13 @@ local function OpenMainPanel()
     SubLabel.TextXAlignment = Enum.TextXAlignment.Left
     SubLabel.Parent = TopBar
 
-    -- Contenedor del contenido interno
     local ContentHolder = Instance.new("Frame")
     ContentHolder.Size = UDim2.new(1, 0, 1, -55)
     ContentHolder.Position = UDim2.new(0, 0, 0, 55)
     ContentHolder.BackgroundTransparency = 1
     ContentHolder.Parent = MainFrame
 
-    -- Botón Cerrar (X) - Bien ubicado a la derecha
+    -- Botón Cerrar (X)
     local CloseButton = Instance.new("TextButton")
     CloseButton.Size = UDim2.new(0, 30, 0, 30)
     CloseButton.Position = UDim2.new(1, -40, 0.5, -15)
@@ -192,7 +191,7 @@ local function OpenMainPanel()
         ScreenGui:Destroy()
     end)
 
-    -- Botón Minimizar (-) al lado izquierdo de la X
+    -- Botón Minimizar (-) al lado de la X
     local MinimizeButton = Instance.new("TextButton")
     MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
     MinimizeButton.Position = UDim2.new(1, -75, 0.5, -15)
@@ -325,7 +324,7 @@ local function OpenMainPanel()
     end
 
     -- ==========================================
-    -- SISTEMA DE ESP / LINES / HEALTH
+    -- RENDERIZADO CON LÍMITE DE 500 METROS
     -- ==========================================
     local espCache = {}
 
@@ -340,89 +339,109 @@ local function OpenMainPanel()
     end
 
     RunService.RenderStepped:Connect(function()
+        local localChar = LocalPlayer.Character
+        local localHrp = localChar and localChar:FindFirstChild("HumanoidRootPart")
+
         for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") then
+            if player ~= LocalPlayer and player.Character then
                 local char = player.Character
-                local hrp = char.HumanoidRootPart
-                local humanoid = char.Humanoid
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                local humanoid = char:FindFirstChild("Humanoid")
+                local head = char:FindFirstChild("Head")
 
-                if not espCache[player] then
-                    espCache[player] = {}
-                    
-                    local box = Drawing.new("Square")
-                    box.Visible = false
-                    box.Color = Color3.fromRGB(162, 57, 239)
-                    box.Thickness = 1.5
-                    box.Filled = false
-                    espCache[player].box = box
+                if hrp and humanoid and head and localHrp then
+                    -- Verificar distancia máxima de 500 studs (metros)
+                    local distance = (hrp.Position - localHrp.Position).Magnitude
 
-                    local line = Drawing.new("Line")
-                    line.Visible = false
-                    line.Color = Color3.fromRGB(235, 130, 255)
-                    line.Thickness = 1
-                    espCache[player].line = line
+                    if distance <= 500 then
+                        if not espCache[player] then
+                            espCache[player] = {}
+                            
+                            local box = Drawing.new("Square")
+                            box.Visible = false
+                            box.Color = Color3.fromRGB(162, 57, 239)
+                            box.Thickness = 1.5
+                            box.Filled = false
+                            espCache[player].box = box
 
-                    local healthBg = Drawing.new("Square")
-                    healthBg.Visible = false
-                    healthBg.Color = Color3.fromRGB(0, 0, 0)
-                    healthBg.Filled = true
-                    espCache[player].healthBg = healthBg
+                            local line = Drawing.new("Line")
+                            line.Visible = false
+                            line.Color = Color3.fromRGB(235, 130, 255)
+                            line.Thickness = 1
+                            espCache[player].line = line
 
-                    local healthBar = Drawing.new("Square")
-                    healthBar.Visible = false
-                    healthBar.Color = Color3.fromRGB(0, 255, 100)
-                    healthBar.Filled = true
-                    espCache[player].healthBar = healthBar
-                end
+                            local healthBg = Drawing.new("Square")
+                            healthBg.Visible = false
+                            healthBg.Color = Color3.fromRGB(0, 0, 0)
+                            healthBg.Filled = true
+                            espCache[player].healthBg = healthBg
 
-                local cache = espCache[player]
-                local camera = workspace.CurrentCamera
-                local vector, onScreen = camera:WorldToViewportPoint(hrp.Position)
+                            local healthBar = Drawing.new("Square")
+                            healthBar.Visible = false
+                            healthBar.Color = Color3.fromRGB(0, 255, 100)
+                            healthBar.Filled = true
+                            espCache[player].healthBar = healthBar
+                        end
 
-                if onScreen and humanoid.Health > 0 then
-                    local scaleFactor = 1 / (vector.Z * math.tan(math.rad(camera.FieldOfView / 2)) * 2) * 1000
-                    local w = math.clamp(25 * scaleFactor, 15, 300)
-                    local h = math.clamp(35 * scaleFactor, 20, 500)
-                    local x = vector.X - w / 2
-                    local y = vector.Y - h / 2
+                        local cache = espCache[player]
+                        local camera = workspace.CurrentCamera
+                        
+                        local headPos, headOnScreen = camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
+                        local legPos, legOnScreen = camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0))
 
-                    if ESP_Enabled then
-                        cache.box.Visible = true
-                        cache.box.Size = Vector2.new(w, h)
-                        cache.box.Position = Vector2.new(x, y)
+                        if headOnScreen or legOnScreen then
+                            local height = math.abs(headPos.Y - legPos.Y)
+                            local width = height / 2
+                            local x = headPos.X - width / 2
+                            local y = headPos.Y
+
+                            -- ESP Box
+                            if ESP_Enabled and humanoid.Health > 0 then
+                                cache.box.Visible = true
+                                cache.box.Size = Vector2.new(width, height)
+                                cache.box.Position = Vector2.new(x, y)
+                            else
+                                cache.box.Visible = false
+                            end
+
+                            -- Lines / Tracers
+                            if Lines_Enabled and humanoid.Health > 0 then
+                                cache.line.Visible = true
+                                cache.line.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
+                                cache.line.To = Vector2.new(headPos.X, y + height)
+                            else
+                                cache.line.Visible = false
+                            end
+
+                            -- Health Bar
+                            if Health_Enabled and humanoid.Health > 0 then
+                                local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
+                                local hbHeight = height * healthPercent
+
+                                cache.healthBg.Visible = true
+                                cache.healthBg.Size = Vector2.new(4, height + 2)
+                                cache.healthBg.Position = Vector2.new(x - 7, y - 1)
+
+                                cache.healthBar.Visible = true
+                                cache.healthBar.Size = Vector2.new(2, hbHeight)
+                                cache.healthBar.Position = Vector2.new(x - 6, y + (height - hbHeight))
+                                cache.healthBar.Color = Color3.fromRGB(255 * (1 - healthPercent), 255 * healthPercent, 0)
+                            else
+                                cache.healthBg.Visible = false
+                                cache.healthBar.Visible = false
+                            end
+                        else
+                            cache.box.Visible = false
+                            cache.line.Visible = false
+                            cache.healthBg.Visible = false
+                            cache.healthBar.Visible = false
+                        end
                     else
-                        cache.box.Visible = false
-                    end
-
-                    if Lines_Enabled then
-                        cache.line.Visible = true
-                        cache.line.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
-                        cache.line.To = Vector2.new(vector.X, vector.Y + h / 2)
-                    else
-                        cache.line.Visible = false
-                    end
-
-                    if Health_Enabled then
-                        local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
-                        local hbHeight = h * healthPercent
-
-                        cache.healthBg.Visible = true
-                        cache.healthBg.Size = Vector2.new(4, h + 2)
-                        cache.healthBg.Position = Vector2.new(x - 7, y - 1)
-
-                        cache.healthBar.Visible = true
-                        cache.healthBar.Size = Vector2.new(2, hbHeight)
-                        cache.healthBar.Position = Vector2.new(x - 6, y + (h - hbHeight))
-                        cache.healthBar.Color = Color3.fromRGB(255 * (1 - healthPercent), 255 * healthPercent, 0)
-                    else
-                        cache.healthBg.Visible = false
-                        cache.healthBar.Visible = false
+                        -- Fuera del rango de 500 metros
+                        removeEsp(player)
                     end
                 else
-                    cache.box.Visible = false
-                    cache.line.Visible = false
-                    cache.healthBg.Visible = false
-                    cache.healthBar.Visible = false
+                    removeEsp(player)
                 end
             else
                 removeEsp(player)

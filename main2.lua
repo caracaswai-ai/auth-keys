@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (+15% Tamaño Extra, Raycast, Líneas Arriba + Sin Team Check)
+-- 01Scripts | Panel 2 (ESP y Health Ampliados + Grosor Personalizable)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -115,7 +115,7 @@ StatusMsg.TextXAlignment = Enum.TextXAlignment.Center
 StatusMsg.Parent = LoginFrame
 
 -- ==========================================
--- PANEL PRINCIPAL CON ESP AMPLIADO (+15% EXTRA)
+-- PANEL PRINCIPAL CON ESP Y GROSOR AJUSTADO
 -- ==========================================
 local function OpenMainPanel()
     LoginGui:Destroy()
@@ -359,11 +359,16 @@ local function OpenMainPanel()
     end
 
     -- ==========================================
-    -- RENDERIZADO CON ESP AMPLIADO (+15% ADICIONAL) Y RAYCAST
+    -- RENDERIZADO CON ESP AMPLIADO Y GROSOR CONFIGURABLE
     -- ==========================================
     local espCache = {}
     local raycastParams = RaycastParams.new()
     raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+
+    -- CONFIGURACIÓN DE GROSOR Y TAMAÑO
+    local BOX_THICKNESS = 1.5   -- Grosor del borde de la caja ESP
+    local LINE_THICKNESS = 1.6  -- Grosor de las líneas superiores
+    local HEALTH_WIDTH = 2.8    -- Ancho de la barra de vida
 
     local function removeEsp(player)
         if espCache[player] then
@@ -401,13 +406,13 @@ local function OpenMainPanel()
                             
                             local box = Drawing.new("Square")
                             box.Visible = false
-                            box.Thickness = 1
+                            box.Thickness = BOX_THICKNESS
                             box.Filled = false
                             espCache[player].box = box
 
                             local line = Drawing.new("Line")
                             line.Visible = false
-                            line.Thickness = 1.3
+                            line.Thickness = LINE_THICKNESS
                             espCache[player].line = line
 
                             local healthBg = Drawing.new("Square")
@@ -448,8 +453,8 @@ local function OpenMainPanel()
 
                         if headOnScreen or legOnScreen then
                             local baseHeight = math.abs(headPos.Y - legPos.Y)
-                            -- Tamaño anterior (0.487) incrementado un 15% adicional (0.487 * 1.15 = 0.56)
-                            local height = baseHeight * 0.56
+                            -- Tamaño anterior (0.56) incrementado un 15% adicional (0.56 * 1.15 = 0.644)
+                            local height = baseHeight * 0.644
                             local width = height / 2
                             local x = headPos.X - width / 2
                             local y = headPos.Y + (baseHeight * 0.325)
@@ -460,6 +465,7 @@ local function OpenMainPanel()
                                 cache.box.Size = Vector2.new(width, height)
                                 cache.box.Position = Vector2.new(x, y)
                                 cache.box.Color = dynamicColor
+                                cache.box.Thickness = BOX_THICKNESS
                             else
                                 cache.box.Visible = false
                             end
@@ -470,23 +476,24 @@ local function OpenMainPanel()
                                 cache.line.From = Vector2.new(Camera.ViewportSize.X / 2, 0)
                                 cache.line.To = Vector2.new(headPos.X, y + height)
                                 cache.line.Color = dynamicColor
+                                cache.line.Thickness = LINE_THICKNESS
                                 playersWithLinesCount = playersWithLinesCount + 1
                             else
                                 cache.line.Visible = false
                             end
 
-                            -- Health Bar
+                            -- Health Bar (Más ancha y alta acorde al nuevo tamaño)
                             if Health_Enabled and isAlive then
                                 local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
                                 local hbHeight = height * healthPercent
 
                                 cache.healthBg.Visible = true
-                                cache.healthBg.Size = Vector2.new(4.5, height + 2)
-                                cache.healthBg.Position = Vector2.new(x - 6.5, y - 1)
+                                cache.healthBg.Size = Vector2.new(HEALTH_WIDTH + 2.5, height + 2)
+                                cache.healthBg.Position = Vector2.new(x - (HEALTH_WIDTH + 5), y - 1)
 
                                 cache.healthBar.Visible = true
-                                cache.healthBar.Size = Vector2.new(2.2, hbHeight)
-                                cache.healthBar.Position = Vector2.new(x - 6, y + (height - hbHeight))
+                                cache.healthBar.Size = Vector2.new(HEALTH_WIDTH, hbHeight)
+                                cache.healthBar.Position = Vector2.new(x - (HEALTH_WIDTH + 4), y + (height - hbHeight))
                                 cache.healthBar.Color = Color3.fromRGB(255 * (1 - healthPercent), 255 * healthPercent, 0)
                             else
                                 cache.healthBg.Visible = false

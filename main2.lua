@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (ESP y Health Ampliados + Grosor Personalizable)
+-- 01Scripts | Panel 2 (ESP/Health +20%, Health Fino -10%)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -115,7 +115,7 @@ StatusMsg.TextXAlignment = Enum.TextXAlignment.Center
 StatusMsg.Parent = LoginFrame
 
 -- ==========================================
--- PANEL PRINCIPAL CON ESP Y GROSOR AJUSTADO
+-- PANEL PRINCIPAL CON ESP AJUSTADO
 -- ==========================================
 local function OpenMainPanel()
     LoginGui:Destroy()
@@ -359,16 +359,16 @@ local function OpenMainPanel()
     end
 
     -- ==========================================
-    -- RENDERIZADO CON ESP AMPLIADO Y GROSOR CONFIGURABLE
+    -- RENDERIZADO CON ESP +20% Y HEALTH MÁS FINO (-10%)
     -- ==========================================
     local espCache = {}
     local raycastParams = RaycastParams.new()
     raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 
-    -- CONFIGURACIÓN DE GROSOR Y TAMAÑO
+    -- CONFIGURACIÓN DE TAMAÑOS Y GROSORES
     local BOX_THICKNESS = 1.5   -- Grosor del borde de la caja ESP
     local LINE_THICKNESS = 1.6  -- Grosor de las líneas superiores
-    local HEALTH_WIDTH = 2.8    -- Ancho de la barra de vida
+    local HEALTH_WIDTH = 2.5    -- Ancho/grosor de la barra de vida (reducido un 10%)
 
     local function removeEsp(player)
         if espCache[player] then
@@ -453,8 +453,8 @@ local function OpenMainPanel()
 
                         if headOnScreen or legOnScreen then
                             local baseHeight = math.abs(headPos.Y - legPos.Y)
-                            -- Tamaño anterior (0.56) incrementado un 15% adicional (0.56 * 1.15 = 0.644)
-                            local height = baseHeight * 0.644
+                            -- Tamaño anterior (0.644) aumentado un 20% adicional (0.644 * 1.20 = 0.773)
+                            local height = baseHeight * 0.773
                             local width = height / 2
                             local x = headPos.X - width / 2
                             local y = headPos.Y + (baseHeight * 0.325)
@@ -482,18 +482,18 @@ local function OpenMainPanel()
                                 cache.line.Visible = false
                             end
 
-                            -- Health Bar (Más ancha y alta acorde al nuevo tamaño)
+                            -- Health Bar (Tamaño aumentado 20% y grosor más fino)
                             if Health_Enabled and isAlive then
                                 local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
                                 local hbHeight = height * healthPercent
 
                                 cache.healthBg.Visible = true
-                                cache.healthBg.Size = Vector2.new(HEALTH_WIDTH + 2.5, height + 2)
-                                cache.healthBg.Position = Vector2.new(x - (HEALTH_WIDTH + 5), y - 1)
+                                cache.healthBg.Size = Vector2.new(HEALTH_WIDTH + 2, height + 2)
+                                cache.healthBg.Position = Vector2.new(x - (HEALTH_WIDTH + 4.5), y - 1)
 
                                 cache.healthBar.Visible = true
                                 cache.healthBar.Size = Vector2.new(HEALTH_WIDTH, hbHeight)
-                                cache.healthBar.Position = Vector2.new(x - (HEALTH_WIDTH + 4), y + (height - hbHeight))
+                                cache.healthBar.Position = Vector2.new(x - (HEALTH_WIDTH + 3.5), y + (height - hbHeight))
                                 cache.healthBar.Color = Color3.fromRGB(255 * (1 - healthPercent), 255 * healthPercent, 0)
                             else
                                 cache.healthBg.Visible = false

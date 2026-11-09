@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (Dynamic Health Bar Color)
+-- 01Scripts | Panel 2 (Persistent CONFIG via File)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -12,6 +12,7 @@ local Camera = workspace.CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
 
 local GITHUB_KEYS_URL = "https://raw.githubusercontent.com/caracaswai-ai/auth-keys/main/keys2.json"
+local CONFIG_FILE_NAME = "01Scripts_Config.json"
 
 local function verifyKey(inputKey)
     local success, result = pcall(function()
@@ -256,6 +257,7 @@ local function OpenMainPanel()
     SideBar.BorderSizePixel = 0
     SideBar.Parent = ContentHolder
 
+    -- CONTENEDORES DE PESTAÑAS
     local VisualContainer = Instance.new("ScrollingFrame")
     VisualContainer.Size = UDim2.new(1, -230, 1, -20)
     VisualContainer.Position = UDim2.new(0, 220, 0, 10)
@@ -294,6 +296,19 @@ local function OpenMainPanel()
     local ExtraList = Instance.new("UIListLayout")
     ExtraList.Padding = UDim.new(0, 12)
     ExtraList.Parent = ExtraContainer
+
+    local ConfigContainer = Instance.new("ScrollingFrame")
+    ConfigContainer.Size = UDim2.new(1, -230, 1, -20)
+    ConfigContainer.Position = UDim2.new(0, 220, 0, 10)
+    ConfigContainer.BackgroundTransparency = 1
+    ConfigContainer.CanvasSize = UDim2.new(0, 0, 0, 220)
+    ConfigContainer.ScrollBarThickness = 3
+    ConfigContainer.Visible = false
+    ConfigContainer.Parent = ContentHolder
+
+    local ConfigList = Instance.new("UIListLayout")
+    ConfigList.Padding = UDim.new(0, 12)
+    ConfigList.Parent = ConfigContainer
 
     local MainText = Instance.new("TextLabel")
     MainText.Size = UDim2.new(1, -20, 0, 20)
@@ -351,40 +366,80 @@ local function OpenMainPanel()
     ETCorner.CornerRadius = UDim.new(0, 8)
     ETCorner.Parent = ExtraTab
 
+    local ConfigTab = Instance.new("TextButton")
+    ConfigTab.Size = UDim2.new(1, -24, 0, 42)
+    ConfigTab.Position = UDim2.new(0, 12, 0, 192)
+    ConfigTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+    ConfigTab.TextColor3 = Color3.fromRGB(150, 150, 165)
+    ConfigTab.Text = "    CONFIG"
+    ConfigTab.TextSize = 13
+    ConfigTab.Font = Enum.Font.GothamBold
+    ConfigTab.TextXAlignment = Enum.TextXAlignment.Left
+    ConfigTab.Parent = SideBar
+
+    local CTCorner = Instance.new("UICorner")
+    CTCorner.CornerRadius = UDim.new(0, 8)
+    CTCorner.Parent = ConfigTab
+
+    -- LOGICA DE CAMBIO DE PESTAÑAS
     VisualTab.MouseButton1Click:Connect(function()
         VisualContainer.Visible = true
         AimContainer.Visible = false
         ExtraContainer.Visible = false
+        ConfigContainer.Visible = false
         VisualTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
         VisualTab.TextColor3 = Color3.fromRGB(235, 130, 255)
         AimTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
         AimTab.TextColor3 = Color3.fromRGB(150, 150, 165)
         ExtraTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
         ExtraTab.TextColor3 = Color3.fromRGB(150, 150, 165)
+        ConfigTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        ConfigTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     end)
 
     AimTab.MouseButton1Click:Connect(function()
         VisualContainer.Visible = false
         AimContainer.Visible = true
         ExtraContainer.Visible = false
+        ConfigContainer.Visible = false
         AimTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
         AimTab.TextColor3 = Color3.fromRGB(235, 130, 255)
         VisualTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
         VisualTab.TextColor3 = Color3.fromRGB(150, 150, 165)
         ExtraTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
         ExtraTab.TextColor3 = Color3.fromRGB(150, 150, 165)
+        ConfigTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        ConfigTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     end)
 
     ExtraTab.MouseButton1Click:Connect(function()
         VisualContainer.Visible = false
         AimContainer.Visible = false
         ExtraContainer.Visible = true
+        ConfigContainer.Visible = false
         ExtraTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
         ExtraTab.TextColor3 = Color3.fromRGB(235, 130, 255)
         VisualTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
         VisualTab.TextColor3 = Color3.fromRGB(150, 150, 165)
         AimTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
         AimTab.TextColor3 = Color3.fromRGB(150, 150, 165)
+        ConfigTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        ConfigTab.TextColor3 = Color3.fromRGB(150, 150, 165)
+    end)
+
+    ConfigTab.MouseButton1Click:Connect(function()
+        VisualContainer.Visible = false
+        AimContainer.Visible = false
+        ExtraContainer.Visible = false
+        ConfigContainer.Visible = true
+        ConfigTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
+        ConfigTab.TextColor3 = Color3.fromRGB(235, 130, 255)
+        VisualTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        VisualTab.TextColor3 = Color3.fromRGB(150, 150, 165)
+        AimTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        AimTab.TextColor3 = Color3.fromRGB(150, 150, 165)
+        ExtraTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        ExtraTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     end)
 
     local ESP_Enabled = false
@@ -542,6 +597,39 @@ local function OpenMainPanel()
         end)
     end
 
+    local function CreateButton(parentContainer, name, callback)
+        local ButtonFrame = Instance.new("Frame")
+        ButtonFrame.Size = UDim2.new(1, 0, 0, 50)
+        ButtonFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
+        ButtonFrame.BorderSizePixel = 0
+        ButtonFrame.Parent = parentContainer
+
+        local BFCorn = Instance.new("UICorner")
+        BFCorn.CornerRadius = UDim.new(0, 8)
+        BFCorn.Parent = ButtonFrame
+
+        local ActionButton = Instance.new("TextButton")
+        ActionButton.Size = UDim2.new(1, -36, 0, 36)
+        ActionButton.Position = UDim2.new(0, 18, 0.5, -18)
+        ActionButton.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
+        ActionButton.TextColor3 = Color3.fromRGB(220, 220, 230)
+        ActionButton.Text = name
+        ActionButton.TextSize = 13
+        ActionButton.Font = Enum.Font.GothamBold
+        ActionButton.Parent = ButtonFrame
+
+        local ABCorn = Instance.new("UICorner")
+        ABCorn.CornerRadius = UDim.new(0, 6)
+        ABCorn.Parent = ActionButton
+
+        ActionButton.MouseButton1Click:Connect(function()
+            pcall(function() callback() end)
+            ActionButton.BackgroundColor3 = Color3.fromRGB(45, 45, 58)
+            task.wait(0.15)
+            ActionButton.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
+        end)
+    end
+
     CreateToggle(VisualContainer, "ESP", function(state) ESP_Enabled = state end)
     CreateToggle(VisualContainer, "Lines", function(state) 
         Lines_Enabled = state 
@@ -564,6 +652,89 @@ local function OpenMainPanel()
     CreateToggle(ExtraContainer, "Noclip", function(state) Noclip_Enabled = state end)
     CreateToggle(ExtraContainer, "Speed", function(state) Speed_Enabled = state end)
     CreateSlider(ExtraContainer, "Walk Speed", 16, 200, 50, function(val) moveSpeed = val end)
+
+    -- PERSISTENCIA DE CONFIGURACIÓN CON ARCHIVOS
+    CreateButton(ConfigContainer, "Save Config", function()
+        local configData = {
+            ESP = ESP_Enabled,
+            Lines = Lines_Enabled,
+            Health = Health_Enabled,
+            Highlight = Highlight_Enabled,
+            EspMaxDist = espMaxDistance,
+            Aimbot = Aimbot_Enabled,
+            Smoothness = aimbotSmoothness,
+            FOV = FOV_Enabled,
+            FovSize = fovSize,
+            FovTrans = fovTransparency,
+            MaxDist = maxDistance,
+            WallCheck = wallCheck_Enabled,
+            Fly = Fly_Enabled,
+            FlySpd = flySpeed,
+            Noclip = Noclip_Enabled,
+            Speed = Speed_Enabled,
+            MoveSpd = moveSpeed
+        }
+        
+        if writefile then
+            pcall(function()
+                writefile(CONFIG_FILE_NAME, HttpService:JSONEncode(configData))
+            end)
+        end
+    end)
+
+    CreateButton(ConfigContainer, "Load Config", function()
+        if readfile and pcall(function() readfile(CONFIG_FILE_NAME) end) then
+            pcall(function()
+                local content = readfile(CONFIG_FILE_NAME)
+                local decoded = HttpService:JSONDecode(content)
+                if decoded then
+                    ESP_Enabled = decoded.ESP or false
+                    Lines_Enabled = decoded.Lines or false
+                    Health_Enabled = decoded.Health or false
+                    Highlight_Enabled = decoded.Highlight or false
+                    espMaxDistance = decoded.EspMaxDist or 5000
+                    Aimbot_Enabled = decoded.Aimbot or false
+                    aimbotSmoothness = decoded.Smoothness or 100
+                    FOV_Enabled = decoded.FOV or false
+                    fovSize = decoded.FovSize or 150
+                    fovTransparency = decoded.FovTrans or 100
+                    maxDistance = decoded.MaxDist or 500
+                    wallCheck_Enabled = decoded.WallCheck or false
+                    Fly_Enabled = decoded.Fly or false
+                    flySpeed = decoded.FlySpd or 50
+                    Noclip_Enabled = decoded.Noclip or false
+                    Speed_Enabled = decoded.Speed or false
+                    moveSpeed = decoded.MoveSpd or 50
+                end
+            end)
+        end
+    end)
+
+    CreateButton(ConfigContainer, "Reset All", function()
+        ESP_Enabled = false
+        Lines_Enabled = false
+        Health_Enabled = false
+        Highlight_Enabled = false
+        espMaxDistance = 5000
+
+        Aimbot_Enabled = false
+        aimbotSmoothness = 100
+        FOV_Enabled = false
+        fovSize = 150
+        fovTransparency = 100
+        maxDistance = 500
+        wallCheck_Enabled = false
+
+        Fly_Enabled = false
+        flySpeed = 50
+        Noclip_Enabled = false
+        Speed_Enabled = false
+        moveSpeed = 50
+        
+        if delfile and pcall(function() readfile(CONFIG_FILE_NAME) end) then
+            pcall(function() delfile(CONFIG_FILE_NAME) end)
+        end
+    end)
 
     local fovCircle = Drawing.new("Circle")
     fovCircle.Thickness = 1.5
@@ -831,8 +1002,6 @@ local function OpenMainPanel()
                                     
                                     healthBar.Size = Vector2.new(healthWidth, currentHealthHeight)
                                     healthBar.Position = Vector2.new(healthX, healthY + (healthHeight - currentHealthHeight))
-                                    
-                                    -- Color dinámico según la vida (Verde -> Amarillo -> Rojo)
                                     healthBar.Color = Color3.fromHSV(healthPercent * 0.33, 1, 1)
                                     healthBar.Visible = true
                                 else

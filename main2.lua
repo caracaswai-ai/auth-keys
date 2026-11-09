@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (ESP Posición Arriba Corregida, Health Bar 4% de Grosor)
+-- 01Scripts | Panel 2 (ESP Corregido, Health Bar 4%, Aim con Espacio Extra Abajo)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -116,7 +116,7 @@ StatusMsg.TextXAlignment = Enum.TextXAlignment.Center
 StatusMsg.Parent = LoginFrame
 
 -- ==========================================
--- PANEL PRINCIPAL CON APARTADOS VISUAL Y EXTRA
+-- PANEL PRINCIPAL CON APARTADOS VISUAL, AIM Y EXTRA
 -- ==========================================
 local function OpenMainPanel()
     LoginGui:Destroy()
@@ -259,6 +259,7 @@ local function OpenMainPanel()
     SideBar.BorderSizePixel = 0
     SideBar.Parent = ContentHolder
 
+    -- CONTENEDORES DE PESTAÑAS (VISUAL, AIM, EXTRA)
     local VisualContainer = Instance.new("ScrollingFrame")
     VisualContainer.Size = UDim2.new(1, -230, 1, -20)
     VisualContainer.Position = UDim2.new(0, 220, 0, 10)
@@ -271,6 +272,19 @@ local function OpenMainPanel()
     local VisualList = Instance.new("UIListLayout")
     VisualList.Padding = UDim.new(0, 12)
     VisualList.Parent = VisualContainer
+
+    local AimContainer = Instance.new("ScrollingFrame")
+    AimContainer.Size = UDim2.new(1, -230, 1, -20)
+    AimContainer.Position = UDim2.new(0, 220, 0, 10)
+    AimContainer.BackgroundTransparency = 1
+    AimContainer.CanvasSize = UDim2.new(0, 0, 0, 500) -- Ampliado a 500 para dejar espacio vacío abajo
+    AimContainer.ScrollBarThickness = 3
+    AimContainer.Visible = false
+    AimContainer.Parent = ContentHolder
+
+    local AimList = Instance.new("UIListLayout")
+    AimList.Padding = UDim.new(0, 12)
+    AimList.Parent = AimContainer
 
     local ExtraContainer = Instance.new("ScrollingFrame")
     ExtraContainer.Size = UDim2.new(1, -230, 1, -20)
@@ -311,9 +325,24 @@ local function OpenMainPanel()
     VTCorner.CornerRadius = UDim.new(0, 8)
     VTCorner.Parent = VisualTab
 
+    local AimTab = Instance.new("TextButton")
+    AimTab.Size = UDim2.new(1, -24, 0, 42)
+    AimTab.Position = UDim2.new(0, 12, 0, 92)
+    AimTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+    AimTab.TextColor3 = Color3.fromRGB(150, 150, 165)
+    AimTab.Text = "    Aim"
+    AimTab.TextSize = 13
+    AimTab.Font = Enum.Font.GothamBold
+    AimTab.TextXAlignment = Enum.TextXAlignment.Left
+    AimTab.Parent = SideBar
+
+    local ATCorner = Instance.new("UICorner")
+    ATCorner.CornerRadius = UDim.new(0, 8)
+    ATCorner.Parent = AimTab
+
     local ExtraTab = Instance.new("TextButton")
     ExtraTab.Size = UDim2.new(1, -24, 0, 42)
-    ExtraTab.Position = UDim2.new(0, 12, 0, 92)
+    ExtraTab.Position = UDim2.new(0, 12, 0, 142)
     ExtraTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
     ExtraTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     ExtraTab.Text = "    Extra"
@@ -326,28 +355,55 @@ local function OpenMainPanel()
     ETCorner.CornerRadius = UDim.new(0, 8)
     ETCorner.Parent = ExtraTab
 
+    -- LOGICA DE CAMBIO DE PESTAÑAS
     VisualTab.MouseButton1Click:Connect(function()
         VisualContainer.Visible = true
+        AimContainer.Visible = false
         ExtraContainer.Visible = false
         VisualTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
         VisualTab.TextColor3 = Color3.fromRGB(235, 130, 255)
+        AimTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        AimTab.TextColor3 = Color3.fromRGB(150, 150, 165)
+        ExtraTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        ExtraTab.TextColor3 = Color3.fromRGB(150, 150, 165)
+    end)
+
+    AimTab.MouseButton1Click:Connect(function()
+        VisualContainer.Visible = false
+        AimContainer.Visible = true
+        ExtraContainer.Visible = false
+        AimTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
+        AimTab.TextColor3 = Color3.fromRGB(235, 130, 255)
+        VisualTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        VisualTab.TextColor3 = Color3.fromRGB(150, 150, 165)
         ExtraTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
         ExtraTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     end)
 
     ExtraTab.MouseButton1Click:Connect(function()
         VisualContainer.Visible = false
+        AimContainer.Visible = false
         ExtraContainer.Visible = true
         ExtraTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
         ExtraTab.TextColor3 = Color3.fromRGB(235, 130, 255)
         VisualTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
         VisualTab.TextColor3 = Color3.fromRGB(150, 150, 165)
+        AimTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        AimTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     end)
 
+    -- VARIABLES DE FUNCIONALIDADES
     local ESP_Enabled = false
     local Lines_Enabled = false
     local Health_Enabled = false
     local Highlight_Enabled = false
+
+    local Aimbot_Enabled = false
+    local aimbotSmoothness = 100
+    local FOV_Enabled = false
+    local fovSize = 150
+    local maxDistance = 500
+    local wallCheck_Enabled = false
 
     local Fly_Enabled = false
     local flySpeed = 50
@@ -427,7 +483,7 @@ local function OpenMainPanel()
         Label.Size = UDim2.new(1, -30, 0, 25)
         Label.Position = UDim2.new(0, 18, 0, 8)
         Label.BackgroundTransparency = 1
-        Label.Text = name .. ": " .. tostring(default)
+        Label.Text = name .. ": " .. tostring(default) .. (name:find("Suavidad") and "%" or "")
         Label.TextColor3 = Color3.fromRGB(220, 220, 230)
         Label.TextSize = 13
         Label.Font = Enum.Font.Gotham
@@ -483,12 +539,13 @@ local function OpenMainPanel()
                 
                 FillBar.Size = UDim2.new(percent, 0, 1, 0)
                 local val = math.floor(min + (max - min) * percent)
-                Label.Text = name .. ": " .. tostring(val)
+                Label.Text = name .. ": " .. tostring(val) .. (name:find("Suavidad") and "%" or "")
                 pcall(function() callback(val) end)
             end
         end)
     end
 
+    -- POBLAR CONTENEDORES CON NOMBRES SIMPLIFICADOS
     CreateToggle(VisualContainer, "ESP", function(state) ESP_Enabled = state end)
     CreateToggle(VisualContainer, "Lines", function(state) 
         Lines_Enabled = state 
@@ -497,17 +554,41 @@ local function OpenMainPanel()
     CreateToggle(VisualContainer, "Health", function(state) Health_Enabled = state end)
     CreateToggle(VisualContainer, "Highlight", function(state) Highlight_Enabled = state end)
 
+    CreateToggle(AimContainer, "Aimbot", function(state) Aimbot_Enabled = state end)
+    CreateSlider(AimContainer, "Suavidad", 10, 100, 100, function(val) aimbotSmoothness = val end)
+    CreateToggle(AimContainer, "FOV", function(state) FOV_Enabled = state end)
+    CreateSlider(AimContainer, "Tamaño FOV", 50, 500, 150, function(val) fovSize = val end)
+    CreateSlider(AimContainer, "Distancia Máxima", 50, 1000, 500, function(val) maxDistance = val end)
+    CreateToggle(AimContainer, "Paredes", function(state) wallCheck_Enabled = state end)
+
     CreateToggle(ExtraContainer, "Fly", function(state) Fly_Enabled = state end)
     CreateSlider(ExtraContainer, "Fly Speed", 10, 300, 50, function(val) flySpeed = val end)
     CreateToggle(ExtraContainer, "Noclip", function(state) Noclip_Enabled = state end)
     CreateToggle(ExtraContainer, "Speed", function(state) Speed_Enabled = state end)
     CreateSlider(ExtraContainer, "Walk Speed", 16, 200, 50, function(val) moveSpeed = val end)
 
+    -- CIRCULO DE FOV VISUAL
+    local fovCircle = Drawing.new("Circle")
+    fovCircle.Thickness = 1.5
+    fovCircle.NumSides = 60
+    fovCircle.Filled = false
+    fovCircle.Color = Color3.fromRGB(162, 57, 239)
+    fovCircle.Visible = false
+
+    -- RAYCAST PARAMS PARA VERIFICAR PAREDES
+    local aimRayParams = RaycastParams.new()
+    aimRayParams.FilterType = Enum.RaycastFilterType.Exclude
+
+    -- LOGICA DE FLY Y NOCLIP
     local flyBodyGyro, flyBodyVelocity
     RunService.RenderStepped:Connect(function()
         local char = LocalPlayer.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
         local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+
+        if char then
+            aimRayParams.FilterDescendantsInstances = {char}
+        end
 
         if Noclip_Enabled and char then
             for _, part in ipairs(char:GetDescendants()) do
@@ -549,6 +630,74 @@ local function OpenMainPanel()
             if flyBodyVelocity then flyBodyVelocity:Destroy(); flyBodyVelocity = nil end
             if humanoid and humanoid.PlatformStand then humanoid.PlatformStand = false end
         end
+
+        -- RENDER FOV CIRCLE
+        local mouseLocation = UserInputService:GetMouseLocation()
+        if FOV_Enabled then
+            fovCircle.Visible = true
+            fovCircle.Radius = fovSize
+            fovCircle.Position = mouseLocation
+        else
+            fovCircle.Visible = false
+        end
+
+        -- LOGICA DE AIMBOT CON FILTRO DE PAREDES (CON CLIC DERECHO)
+        local rightMouseDown = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
+        if Aimbot_Enabled and rightMouseDown then
+            local closestTarget = nil
+            local shortestDistance = fovSize
+            local localHrp = hrp
+
+            for _, player in ipairs(Players:GetPlayers()) do
+                if player ~= LocalPlayer and player.Character then
+                    local targetChar = player.Character
+                    local targetHrp = targetChar:FindFirstChild("HumanoidRootPart")
+                    local targetHead = targetChar:FindFirstChild("Head")
+                    local targetHumanoid = targetChar:FindFirstChildOfClass("Humanoid")
+
+                    if targetHead and targetHrp and targetHumanoid and targetHumanoid.Health > 0 and localHrp then
+                        local distanceToPlayer = (targetHrp.Position - localHrp.Position).Magnitude
+                        
+                        if distanceToPlayer <= maxDistance then
+                            local isValidTarget = true
+                            if wallCheck_Enabled then
+                                local origin = Camera.CFrame.Position
+                                local direction = (targetHead.Position - origin)
+                                local rayResult = workspace:Raycast(origin, direction, aimRayParams)
+                                if rayResult then
+                                    local hitInst = rayResult.Instance
+                                    if not hitInst:IsDescendantOf(targetChar) then
+                                        isValidTarget = false
+                                    end
+                                end
+                            end
+
+                            if isValidTarget then
+                                local screenPos, onScreen = Camera:WorldToViewportPoint(targetHead.Position)
+                                if onScreen then
+                                    local magnitude = (Vector2.new(screenPos.X, screenPos.Y) - mouseLocation).Magnitude
+                                    if magnitude < shortestDistance then
+                                        shortestDistance = magnitude
+                                        closestTarget = targetHead
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
+            if closestTarget then
+                local adjustedTargetPos = closestTarget.Position + Vector3.new(0, 0.5, 0)
+
+                if aimbotSmoothness >= 100 then
+                    Camera.CFrame = CFrame.new(Camera.CFrame.Position, adjustedTargetPos)
+                else
+                    local smoothnessFactor = math.clamp((100 - aimbotSmoothness) / 5, 1, 20)
+                    Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, adjustedTargetPos), 1 / smoothnessFactor)
+                end
+            end
+        end
     end)
 
     local espCache = {}
@@ -556,7 +705,7 @@ local function OpenMainPanel()
     local raycastParams = RaycastParams.new()
     raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 
-    local BOX_THICKNESS = 1.5   
+    local BOX_THICKNESS = 1.5    
     local LINE_THICKNESS = 1.6  
 
     local function removeEsp(player)
@@ -667,7 +816,6 @@ local function OpenMainPanel()
                             local height = baseHeight * 1.334
                             local width = height / 2
                             local x = headPos.X - width / 2
-                            -- Desplazamiento corregido hacia ARRIBA restando correctamente la posición vertical
                             local y = headPos.Y - (baseHeight * 0.25)
 
                             if ESP_Enabled and isAlive then
@@ -694,7 +842,7 @@ local function OpenMainPanel()
                             if Health_Enabled and isAlive then
                                 local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
                                 local hbHeight = height * healthPercent
-                                local HEALTH_WIDTH = math.clamp(width * 0.04, 1.0, 4.0) -- Grosor ajustado al 4% (3% menos que el anterior)
+                                local HEALTH_WIDTH = math.clamp(width * 0.04, 1.0, 4.0)
 
                                 cache.healthBg.Visible = true
                                 cache.healthBg.Size = Vector2.new(HEALTH_WIDTH + 2, height + 2)

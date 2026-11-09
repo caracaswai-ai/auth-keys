@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (ESP Corregido, Health Bar 4%, Aim con Espacio Extra Abajo)
+-- 01Scripts | Panel 2 (ESP Max Distance Slider Added)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -115,9 +115,6 @@ StatusMsg.Font = Enum.Font.Gotham
 StatusMsg.TextXAlignment = Enum.TextXAlignment.Center
 StatusMsg.Parent = LoginFrame
 
--- ==========================================
--- PANEL PRINCIPAL CON APARTADOS VISUAL, AIM Y EXTRA
--- ==========================================
 local function OpenMainPanel()
     LoginGui:Destroy()
 
@@ -259,12 +256,11 @@ local function OpenMainPanel()
     SideBar.BorderSizePixel = 0
     SideBar.Parent = ContentHolder
 
-    -- CONTENEDORES DE PESTAÑAS (VISUAL, AIM, EXTRA)
     local VisualContainer = Instance.new("ScrollingFrame")
     VisualContainer.Size = UDim2.new(1, -230, 1, -20)
     VisualContainer.Position = UDim2.new(0, 220, 0, 10)
     VisualContainer.BackgroundTransparency = 1
-    VisualContainer.CanvasSize = UDim2.new(0, 0, 0, 240)
+    VisualContainer.CanvasSize = UDim2.new(0, 0, 0, 350) -- Ampliado para el nuevo slider de ESP
     VisualContainer.ScrollBarThickness = 3
     VisualContainer.Visible = true
     VisualContainer.Parent = ContentHolder
@@ -277,7 +273,7 @@ local function OpenMainPanel()
     AimContainer.Size = UDim2.new(1, -230, 1, -20)
     AimContainer.Position = UDim2.new(0, 220, 0, 10)
     AimContainer.BackgroundTransparency = 1
-    AimContainer.CanvasSize = UDim2.new(0, 0, 0, 500) -- Ampliado a 500 para dejar espacio vacío abajo
+    AimContainer.CanvasSize = UDim2.new(0, 0, 0, 620)
     AimContainer.ScrollBarThickness = 3
     AimContainer.Visible = false
     AimContainer.Parent = ContentHolder
@@ -355,7 +351,6 @@ local function OpenMainPanel()
     ETCorner.CornerRadius = UDim.new(0, 8)
     ETCorner.Parent = ExtraTab
 
-    -- LOGICA DE CAMBIO DE PESTAÑAS
     VisualTab.MouseButton1Click:Connect(function()
         VisualContainer.Visible = true
         AimContainer.Visible = false
@@ -392,16 +387,17 @@ local function OpenMainPanel()
         AimTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     end)
 
-    -- VARIABLES DE FUNCIONALIDADES
     local ESP_Enabled = false
     local Lines_Enabled = false
     local Health_Enabled = false
     local Highlight_Enabled = false
+    local espMaxDistance = 5000 -- Distancia máxima para el ESP (por defecto 5000)
 
     local Aimbot_Enabled = false
     local aimbotSmoothness = 100
     local FOV_Enabled = false
     local fovSize = 150
+    local fovTransparency = 100
     local maxDistance = 500
     local wallCheck_Enabled = false
 
@@ -483,7 +479,8 @@ local function OpenMainPanel()
         Label.Size = UDim2.new(1, -30, 0, 25)
         Label.Position = UDim2.new(0, 18, 0, 8)
         Label.BackgroundTransparency = 1
-        Label.Text = name .. ": " .. tostring(default) .. (name:find("Suavidad") and "%" or "")
+        local suffix = (name:find("Suavidad") or name:find("Transparencia")) and "%" or ""
+        Label.Text = name .. ": " .. tostring(default) .. suffix
         Label.TextColor3 = Color3.fromRGB(220, 220, 230)
         Label.TextSize = 13
         Label.Font = Enum.Font.Gotham
@@ -539,13 +536,13 @@ local function OpenMainPanel()
                 
                 FillBar.Size = UDim2.new(percent, 0, 1, 0)
                 local val = math.floor(min + (max - min) * percent)
-                Label.Text = name .. ": " .. tostring(val) .. (name:find("Suavidad") and "%" or "")
+                Label.Text = name .. ": " .. tostring(val) .. suffix
                 pcall(function() callback(val) end)
             end
         end)
     end
 
-    -- POBLAR CONTENEDORES CON NOMBRES SIMPLIFICADOS
+    -- PESTAÑA VISUAL (ESP)
     CreateToggle(VisualContainer, "ESP", function(state) ESP_Enabled = state end)
     CreateToggle(VisualContainer, "Lines", function(state) 
         Lines_Enabled = state 
@@ -553,21 +550,25 @@ local function OpenMainPanel()
     end)
     CreateToggle(VisualContainer, "Health", function(state) Health_Enabled = state end)
     CreateToggle(VisualContainer, "Highlight", function(state) Highlight_Enabled = state end)
+    -- Nuevo slider de Distancia Máxima para el ESP (de 100 a 10000)
+    CreateSlider(VisualContainer, "Distancia Máxima ESP", 100, 10000, 5000, function(val) espMaxDistance = val end)
 
+    -- PESTAÑA AIM
     CreateToggle(AimContainer, "Aimbot", function(state) Aimbot_Enabled = state end)
     CreateSlider(AimContainer, "Suavidad", 10, 100, 100, function(val) aimbotSmoothness = val end)
     CreateToggle(AimContainer, "FOV", function(state) FOV_Enabled = state end)
     CreateSlider(AimContainer, "Tamaño FOV", 50, 500, 150, function(val) fovSize = val end)
+    CreateSlider(AimContainer, "Transparencia FOV", 0, 100, 100, function(val) fovTransparency = val end)
     CreateSlider(AimContainer, "Distancia Máxima", 50, 1000, 500, function(val) maxDistance = val end)
     CreateToggle(AimContainer, "Paredes", function(state) wallCheck_Enabled = state end)
 
+    -- PESTAÑA EXTRA
     CreateToggle(ExtraContainer, "Fly", function(state) Fly_Enabled = state end)
     CreateSlider(ExtraContainer, "Fly Speed", 10, 300, 50, function(val) flySpeed = val end)
     CreateToggle(ExtraContainer, "Noclip", function(state) Noclip_Enabled = state end)
     CreateToggle(ExtraContainer, "Speed", function(state) Speed_Enabled = state end)
     CreateSlider(ExtraContainer, "Walk Speed", 16, 200, 50, function(val) moveSpeed = val end)
 
-    -- CIRCULO DE FOV VISUAL
     local fovCircle = Drawing.new("Circle")
     fovCircle.Thickness = 1.5
     fovCircle.NumSides = 60
@@ -575,11 +576,9 @@ local function OpenMainPanel()
     fovCircle.Color = Color3.fromRGB(162, 57, 239)
     fovCircle.Visible = false
 
-    -- RAYCAST PARAMS PARA VERIFICAR PAREDES
     local aimRayParams = RaycastParams.new()
     aimRayParams.FilterType = Enum.RaycastFilterType.Exclude
 
-    -- LOGICA DE FLY Y NOCLIP
     local flyBodyGyro, flyBodyVelocity
     RunService.RenderStepped:Connect(function()
         local char = LocalPlayer.Character
@@ -631,17 +630,16 @@ local function OpenMainPanel()
             if humanoid and humanoid.PlatformStand then humanoid.PlatformStand = false end
         end
 
-        -- RENDER FOV CIRCLE
         local mouseLocation = UserInputService:GetMouseLocation()
         if FOV_Enabled then
             fovCircle.Visible = true
             fovCircle.Radius = fovSize
             fovCircle.Position = mouseLocation
+            fovCircle.Transparency = fovTransparency / 100
         else
             fovCircle.Visible = false
         end
 
-        -- LOGICA DE AIMBOT CON FILTRO DE PAREDES (CON CLIC DERECHO)
         local rightMouseDown = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
         if Aimbot_Enabled and rightMouseDown then
             local closestTarget = nil
@@ -722,6 +720,10 @@ local function OpenMainPanel()
         end
     end
 
+    Players.PlayerRemoving:Connect(function(player)
+        removeEsp(player)
+    end)
+
     RunService.RenderStepped:Connect(function()
         local localChar = LocalPlayer.Character
         local localHrp = localChar and localChar:FindFirstChild("HumanoidRootPart")
@@ -742,7 +744,8 @@ local function OpenMainPanel()
                 if hrp and humanoid and head and localHrp then
                     local distance = (hrp.Position - localHrp.Position).Magnitude
 
-                    if distance <= 500 then
+                    -- Se reemplaza el límite estático de 500 por la variable deslizante espMaxDistance (100 a 10000)
+                    if distance <= espMaxDistance then
                         local isAlive = humanoid.Health > 0
 
                         local isBehindWall = false
@@ -782,85 +785,85 @@ local function OpenMainPanel()
                         end
 
                         if not espCache[player] then
-                            espCache[player] = {}
-                            
                             local box = Drawing.new("Square")
-                            box.Visible = false
                             box.Thickness = BOX_THICKNESS
                             box.Filled = false
-                            espCache[player].box = box
-
+                            
                             local line = Drawing.new("Line")
-                            line.Visible = false
                             line.Thickness = LINE_THICKNESS
-                            espCache[player].line = line
 
                             local healthBg = Drawing.new("Square")
-                            healthBg.Visible = false
-                            healthBg.Color = Color3.fromRGB(0, 0, 0)
+                            healthBg.Thickness = 1
                             healthBg.Filled = true
-                            espCache[player].healthBg = healthBg
+                            healthBg.Color = Color3.fromRGB(0, 0, 0)
 
                             local healthBar = Drawing.new("Square")
-                            healthBar.Visible = false
+                            healthBar.Thickness = 1
                             healthBar.Filled = true
-                            espCache[player].healthBar = healthBar
+
+                            espCache[player] = {box = box, line = line, healthBg = healthBg, healthBar = healthBar}
                         end
 
                         local cache = espCache[player]
-                        local headPos, headOnScreen = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
-                        local legPos, legOnScreen = Camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0))
+                        local box = cache.box
+                        local line = cache.line
+                        local healthBg = cache.healthBg
+                        local healthBar = cache.healthBar
 
-                        if headOnScreen or legOnScreen then
-                            local baseHeight = math.abs(headPos.Y - legPos.Y)
-                            local height = baseHeight * 1.334
-                            local width = height / 2
-                            local x = headPos.X - width / 2
-                            local y = headPos.Y - (baseHeight * 0.25)
+                        if ESP_Enabled and isAlive then
+                            local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+                            if onScreen then
+                                local size = Vector2.new(2000 / distance, 3500 / distance)
+                                local boxPos = Vector2.new(pos.X - size.X / 2, pos.Y - size.Y / 2)
 
-                            if ESP_Enabled and isAlive then
-                                cache.box.Visible = true
-                                cache.box.Size = Vector2.new(width, height)
-                                cache.box.Position = Vector2.new(x, y)
-                                cache.box.Color = dynamicColor
-                                cache.box.Thickness = BOX_THICKNESS
+                                box.Size = size
+                                box.Position = boxPos
+                                box.Color = dynamicColor
+                                box.Visible = true
+
+                                if Health_Enabled then
+                                    local healthWidth = math.max(2, size.X * 0.04)
+                                    local healthHeight = size.Y
+                                    local healthX = boxPos.X - healthWidth - 4
+                                    local healthY = boxPos.Y
+
+                                    healthBg.Size = Vector2.new(healthWidth, healthHeight)
+                                    healthBg.Position = Vector2.new(healthX, healthY)
+                                    healthBg.Visible = true
+
+                                    local currentHealthHeight = healthHeight * (math.clamp(humanoid.Health, 0, humanoid.MaxHealth) / humanoid.MaxHealth)
+                                    healthBar.Size = Vector2.new(healthWidth, currentHealthHeight)
+                                    healthBar.Position = Vector2.new(healthX, healthY + (healthHeight - currentHealthHeight))
+                                    healthBar.Color = Color3.fromRGB(0, 255, 0)
+                                    healthBar.Visible = true
+                                else
+                                    healthBg.Visible = false
+                                    healthBar.Visible = false
+                                end
                             else
-                                cache.box.Visible = false
-                            end
-
-                            if Lines_Enabled and isAlive then
-                                cache.line.Visible = true
-                                cache.line.From = Vector2.new(Camera.ViewportSize.X / 2, 0)
-                                cache.line.To = Vector2.new(headPos.X, y + height)
-                                cache.line.Color = dynamicColor
-                                cache.line.Thickness = LINE_THICKNESS
-                                playersWithLinesCount = playersWithLinesCount + 1
-                            else
-                                cache.line.Visible = false
-                            end
-
-                            if Health_Enabled and isAlive then
-                                local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
-                                local hbHeight = height * healthPercent
-                                local HEALTH_WIDTH = math.clamp(width * 0.04, 1.0, 4.0)
-
-                                cache.healthBg.Visible = true
-                                cache.healthBg.Size = Vector2.new(HEALTH_WIDTH + 2, height + 2)
-                                cache.healthBg.Position = Vector2.new(x - (HEALTH_WIDTH + 4.5), y - 1)
-
-                                cache.healthBar.Visible = true
-                                cache.healthBar.Size = Vector2.new(HEALTH_WIDTH, hbHeight)
-                                cache.healthBar.Position = Vector2.new(x - (HEALTH_WIDTH + 3.5), y + (height - hbHeight))
-                                cache.healthBar.Color = Color3.fromRGB(255 * (1 - healthPercent), 255 * healthPercent, 0)
-                            else
-                                cache.healthBg.Visible = false
-                                cache.healthBar.Visible = false
+                                box.Visible = false
+                                healthBg.Visible = false
+                                healthBar.Visible = false
                             end
                         else
-                            cache.box.Visible = false
-                            cache.line.Visible = false
-                            cache.healthBg.Visible = false
-                            cache.healthBar.Visible = false
+                            box.Visible = false
+                            healthBg.Visible = false
+                            healthBar.Visible = false
+                        end
+
+                        if Lines_Enabled and isAlive then
+                            local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+                            if onScreen then
+                                line.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+                                line.To = Vector2.new(pos.X, pos.Y)
+                                line.Color = dynamicColor
+                                line.Visible = true
+                                playersWithLinesCount = playersWithLinesCount + 1
+                            else
+                                line.Visible = false
+                            end
+                        else
+                            line.Visible = false
                         end
                     else
                         removeEsp(player)
@@ -873,39 +876,38 @@ local function OpenMainPanel()
             end
         end
 
-        if Lines_Enabled then
+        if Lines_Enabled and playersWithLinesCount > 0 then
             TopIndicatorFrame.Visible = true
             CountLabel.Text = tostring(playersWithLinesCount)
         else
             TopIndicatorFrame.Visible = false
         end
     end)
-
-    Players.PlayerRemoving:Connect(function(player)
-        removeEsp(player)
-    end)
 end
 
+-- ==========================================
+-- CONEXIÓN DEL BOTÓN DE VERIFICACIÓN
+-- ==========================================
 VerifyButton.MouseButton1Click:Connect(function()
-    local userKey = KeyInput.Text:gsub("%s+", "")
+    local userKey = KeyInput.Text
     if userKey == "" then
-        StatusMsg.Text = "⚠️ Escribe una key válida."
+        StatusMsg.Text = "Por favor ingresa una key."
         return
     end
 
     StatusMsg.TextColor3 = Color3.fromRGB(255, 200, 0)
-    StatusMsg.Text = "Verificando clave..."
+    StatusMsg.Text = "Verificando key..."
 
     task.spawn(function()
         local isValid = verifyKey(userKey)
         if isValid then
-            StatusMsg.TextColor3 = Color3.fromRGB(0, 255, 150)
-            StatusMsg.Text = "¡Acceso concedido!"
-            task.wait(0.4)
+            StatusMsg.TextColor3 = Color3.fromRGB(0, 255, 100)
+            StatusMsg.Text = "¡Key válida! Abriendo panel..."
+            task.wait(0.8)
             OpenMainPanel()
         else
             StatusMsg.TextColor3 = Color3.fromRGB(255, 85, 85)
-            StatusMsg.Text = "❌ Key incorrecta o no pertenece al Panel 2."
+            StatusMsg.Text = "Key inválida o expirada."
         end
     end)
 end)

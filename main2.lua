@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (Box +2% Size, Health Bar Width 4%)
+-- 01Scripts | Panel 2 (Dynamic Health Bar Color)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -808,7 +808,6 @@ local function OpenMainPanel()
                         if ESP_Enabled and isAlive then
                             local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
                             if onScreen then
-                                -- Tamaño del box aumentado un 2% adicional (0.904 * 1.02 = ~0.922)
                                 local size = Vector2.new((2000 / distance) * 0.922, (3500 / distance) * 0.922)
                                 local boxPos = Vector2.new(pos.X - size.X / 2, pos.Y - size.Y / 2)
 
@@ -818,7 +817,6 @@ local function OpenMainPanel()
                                 box.Visible = true
 
                                 if Health_Enabled then
-                                    -- Barra de vida aumentada al 4% del tamaño del nuevo box
                                     local healthWidth = math.max(2, size.X * 0.04)
                                     local healthHeight = size.Y
                                     local healthX = boxPos.X - healthWidth - 4
@@ -828,10 +826,14 @@ local function OpenMainPanel()
                                     healthBg.Position = Vector2.new(healthX, healthY)
                                     healthBg.Visible = true
 
-                                    local currentHealthHeight = healthHeight * (math.clamp(humanoid.Health, 0, humanoid.MaxHealth) / humanoid.MaxHealth)
+                                    local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
+                                    local currentHealthHeight = healthHeight * healthPercent
+                                    
                                     healthBar.Size = Vector2.new(healthWidth, currentHealthHeight)
                                     healthBar.Position = Vector2.new(healthX, healthY + (healthHeight - currentHealthHeight))
-                                    healthBar.Color = Color3.fromRGB(0, 255, 0)
+                                    
+                                    -- Color dinámico según la vida (Verde -> Amarillo -> Rojo)
+                                    healthBar.Color = Color3.fromHSV(healthPercent * 0.33, 1, 1)
                                     healthBar.Visible = true
                                 else
                                     healthBg.Visible = false

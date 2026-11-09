@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (ESP Max Distance Slider Added)
+-- 01Scripts | Panel 2 (Lines from Top, Box Size Reduced by 20%)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -260,7 +260,7 @@ local function OpenMainPanel()
     VisualContainer.Size = UDim2.new(1, -230, 1, -20)
     VisualContainer.Position = UDim2.new(0, 220, 0, 10)
     VisualContainer.BackgroundTransparency = 1
-    VisualContainer.CanvasSize = UDim2.new(0, 0, 0, 350) -- Ampliado para el nuevo slider de ESP
+    VisualContainer.CanvasSize = UDim2.new(0, 0, 0, 350)
     VisualContainer.ScrollBarThickness = 3
     VisualContainer.Visible = true
     VisualContainer.Parent = ContentHolder
@@ -391,7 +391,7 @@ local function OpenMainPanel()
     local Lines_Enabled = false
     local Health_Enabled = false
     local Highlight_Enabled = false
-    local espMaxDistance = 5000 -- Distancia máxima para el ESP (por defecto 5000)
+    local espMaxDistance = 5000
 
     local Aimbot_Enabled = false
     local aimbotSmoothness = 100
@@ -542,7 +542,6 @@ local function OpenMainPanel()
         end)
     end
 
-    -- PESTAÑA VISUAL (ESP)
     CreateToggle(VisualContainer, "ESP", function(state) ESP_Enabled = state end)
     CreateToggle(VisualContainer, "Lines", function(state) 
         Lines_Enabled = state 
@@ -550,10 +549,8 @@ local function OpenMainPanel()
     end)
     CreateToggle(VisualContainer, "Health", function(state) Health_Enabled = state end)
     CreateToggle(VisualContainer, "Highlight", function(state) Highlight_Enabled = state end)
-    -- Nuevo slider de Distancia Máxima para el ESP (de 100 a 10000)
     CreateSlider(VisualContainer, "Distancia Máxima ESP", 100, 10000, 5000, function(val) espMaxDistance = val end)
 
-    -- PESTAÑA AIM
     CreateToggle(AimContainer, "Aimbot", function(state) Aimbot_Enabled = state end)
     CreateSlider(AimContainer, "Suavidad", 10, 100, 100, function(val) aimbotSmoothness = val end)
     CreateToggle(AimContainer, "FOV", function(state) FOV_Enabled = state end)
@@ -562,7 +559,6 @@ local function OpenMainPanel()
     CreateSlider(AimContainer, "Distancia Máxima", 50, 1000, 500, function(val) maxDistance = val end)
     CreateToggle(AimContainer, "Paredes", function(state) wallCheck_Enabled = state end)
 
-    -- PESTAÑA EXTRA
     CreateToggle(ExtraContainer, "Fly", function(state) Fly_Enabled = state end)
     CreateSlider(ExtraContainer, "Fly Speed", 10, 300, 50, function(val) flySpeed = val end)
     CreateToggle(ExtraContainer, "Noclip", function(state) Noclip_Enabled = state end)
@@ -744,7 +740,6 @@ local function OpenMainPanel()
                 if hrp and humanoid and head and localHrp then
                     local distance = (hrp.Position - localHrp.Position).Magnitude
 
-                    -- Se reemplaza el límite estático de 500 por la variable deslizante espMaxDistance (100 a 10000)
                     if distance <= espMaxDistance then
                         local isAlive = humanoid.Health > 0
 
@@ -813,7 +808,8 @@ local function OpenMainPanel()
                         if ESP_Enabled and isAlive then
                             local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
                             if onScreen then
-                                local size = Vector2.new(2000 / distance, 3500 / distance)
+                                -- Tamaño del box reducido un 20% (multiplicado por 0.8)
+                                local size = Vector2.new((2000 / distance) * 0.8, (3500 / distance) * 0.8)
                                 local boxPos = Vector2.new(pos.X - size.X / 2, pos.Y - size.Y / 2)
 
                                 box.Size = size
@@ -852,10 +848,11 @@ local function OpenMainPanel()
                         end
 
                         if Lines_Enabled and isAlive then
-                            local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
-                            if onScreen then
-                                line.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
-                                line.To = Vector2.new(pos.X, pos.Y)
+                            local headPos, headOnScreen = Camera:WorldToViewportPoint(head.Position)
+                            if headOnScreen then
+                                -- Líneas que salen desde la parte superior central de la pantalla hacia la cabeza del jugador
+                                line.From = Vector2.new(Camera.ViewportSize.X / 2, 0)
+                                line.To = Vector2.new(headPos.X, headPos.Y)
                                 line.Color = dynamicColor
                                 line.Visible = true
                                 playersWithLinesCount = playersWithLinesCount + 1

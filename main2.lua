@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (Lines from Top, Box Size Reduced by 20%)
+-- 01Scripts | Panel 2 (Box +2% Size, Health Bar Width 4%)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -808,8 +808,8 @@ local function OpenMainPanel()
                         if ESP_Enabled and isAlive then
                             local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
                             if onScreen then
-                                -- Tamaño del box reducido un 20% (multiplicado por 0.8)
-                                local size = Vector2.new((2000 / distance) * 0.8, (3500 / distance) * 0.8)
+                                -- Tamaño del box aumentado un 2% adicional (0.904 * 1.02 = ~0.922)
+                                local size = Vector2.new((2000 / distance) * 0.922, (3500 / distance) * 0.922)
                                 local boxPos = Vector2.new(pos.X - size.X / 2, pos.Y - size.Y / 2)
 
                                 box.Size = size
@@ -818,6 +818,7 @@ local function OpenMainPanel()
                                 box.Visible = true
 
                                 if Health_Enabled then
+                                    -- Barra de vida aumentada al 4% del tamaño del nuevo box
                                     local healthWidth = math.max(2, size.X * 0.04)
                                     local healthHeight = size.Y
                                     local healthX = boxPos.X - healthWidth - 4
@@ -850,7 +851,6 @@ local function OpenMainPanel()
                         if Lines_Enabled and isAlive then
                             local headPos, headOnScreen = Camera:WorldToViewportPoint(head.Position)
                             if headOnScreen then
-                                -- Líneas que salen desde la parte superior central de la pantalla hacia la cabeza del jugador
                                 line.From = Vector2.new(Camera.ViewportSize.X / 2, 0)
                                 line.To = Vector2.new(headPos.X, headPos.Y)
                                 line.Color = dynamicColor

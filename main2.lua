@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (Contador Dinámico Exacto según líneas marcadas)
+-- 01Scripts | Panel 2 (ESP, Lines, Health Dinámica, Contador y Anti-Spam)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -987,7 +987,7 @@ local function OpenMainPanel()
                                 end
                             end
 
-                            -- 3. LINES (Cuenta exclusivamente las líneas que están visibles/dibujándose hacia los jugadores)
+                            -- 3. LINES
                             if Lines_Enabled then
                                 if not espDrawings[player].Line then
                                     local line = Drawing.new("Line")
@@ -1003,7 +1003,6 @@ local function OpenMainPanel()
                                     espDrawings[player].Line.Visible = true
                                     TopIndicatorFrame.Visible = true
                                     
-                                    -- Suma +1 al contador solo si la línea se está mostrando en pantalla
                                     linesMarkedCount = linesMarkedCount + 1
                                 else
                                     espDrawings[player].Line.Visible = false
@@ -1015,7 +1014,7 @@ local function OpenMainPanel()
                                 end
                             end
 
-                            -- 4. HEALTH BAR
+                            -- 4. HEALTH BAR CON CAMBIO DE COLOR DINÁMICO (VERDE -> AMARILLO -> ROJO)
                             if Health_Enabled then
                                 if not espDrawings[player].HealthBar then
                                     local hbBg = Drawing.new("Square")
@@ -1025,7 +1024,6 @@ local function OpenMainPanel()
                                     
                                     local hb = Drawing.new("Square")
                                     hb.Filled = true
-                                    hb.Color = Color3.fromRGB(85, 255, 127)
                                     
                                     espDrawings[player].HealthBg = hbBg
                                     espDrawings[player].HealthBar = hb
@@ -1035,6 +1033,9 @@ local function OpenMainPanel()
                                 if onScreen then
                                     local size = Vector2.new(2000 / dist, 4000 / dist)
                                     local healthPercent = math.clamp(targetHumanoid.Health / targetHumanoid.MaxHealth, 0, 1)
+                                    
+                                    -- Cambia dinámicamente de color igual que la barra de salud de Roblox (Verde a Amarillo y de Amarillo a Rojo)
+                                    espDrawings[player].HealthBar.Color = Color3.fromHSV(healthPercent * 0.33, 1, 1)
                                     
                                     espDrawings[player].HealthBg.Size = Vector2.new(3, size.Y)
                                     espDrawings[player].HealthBg.Position = Vector2.new(pos.X - size.X / 2 - 6, pos.Y - size.Y / 2)
@@ -1063,7 +1064,6 @@ local function OpenMainPanel()
                 end
             end
 
-            -- Mostrar el número exacto de líneas marcadas en pantalla
             CountLabel.Text = tostring(linesMarkedCount)
 
             for p, obj in pairs(espDrawings) do

@@ -5,5 +5,12 @@
     "allowedHWIDs": [],
     "usedBy": "10s",
     "expiresAt": 1794598296
+  },
+  "FREE-KEY-SUYQWE79": {
+    "durationDays": 1,
+    "maxDevices": 1,
+    "allowedHWIDs": [],
+    "usedBy": "10s",
+    "expiresAt": 1794604199
   }
 }

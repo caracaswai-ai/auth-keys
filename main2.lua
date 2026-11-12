@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (Login con DisplayName y Panel Principal Personalizado)
+-- 01Scripts | Panel 2 (Selector Click Derecho / Izquierdo en Aimbot)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -15,16 +15,32 @@ local CONFIG_FILE_NAME = "01Scripts_Config.json"
 
 local function verifyKey(inputKey)
     local success, result = pcall(function()
-        local response = game:HttpGet(GITHUB_KEYS_URL .. "?nocache=" .. tick())
+        local cacheBuster = tostring(math.random(100000, 999999))
+        local response = game:HttpGet(GITHUB_KEYS_URL .. "?nc=" .. cacheBuster .. "_" .. tick())
         return HttpService:JSONDecode(response)
     end)
     
     if success and type(result) == "table" then
-        if result[inputKey] then
-            return true
+        local keyData = result[inputKey]
+        if keyData then
+            if keyData.expiresAt and keyData.expiresAt > 0 and os.time() > keyData.expiresAt then
+                return false, "La Key ha expirado."
+            end
+
+            if keyData.usedBy and keyData.usedBy ~= "" then
+                local allowedUser = keyData.usedBy:lower():gsub("%s+", "")
+                local currentName = LocalPlayer.Name:lower():gsub("%s+", "")
+                local currentDisplayName = LocalPlayer.DisplayName:lower():gsub("%s+", "")
+                
+                if currentName ~= allowedUser and currentDisplayName ~= allowedUser then
+                    return false, "Esta Key pertenece a otro usuario."
+                end
+            end
+
+            return true, "¡Key Válida!"
         end
     end
-    return false
+    return false, "Key inválida o no encontrada."
 end
 
 -- ==========================================
@@ -66,7 +82,6 @@ local LSub = Instance.new("TextLabel")
 LSub.Size = UDim2.new(1, -20, 0, 20)
 LSub.Position = UDim2.new(0, 15, 0, 45)
 LSub.BackgroundTransparency = 1
--- AQUÍ REEMPLAZAMOS "Key System" POR EL NOMBRE DE VISUALIZACIÓN DEL USUARIO
 LSub.Text = LocalPlayer.DisplayName .. " | 01Hub"
 LSub.TextColor3 = Color3.fromRGB(120, 120, 135)
 LSub.TextSize = 11
@@ -119,7 +134,6 @@ StatusMsg.Parent = LoginFrame
 local function OpenMainPanel()
     LoginGui:Destroy()
 
-    -- Control anti-spam para el pitido agudo al 150% de volumen (1.5)
     local lastBeepTick = 0
     local function PlayBeep()
         local currentTick = tick()
@@ -208,7 +222,6 @@ local function OpenMainPanel()
     TopBar.BackgroundTransparency = 1
     TopBar.Parent = MainFrame
 
-    -- TÍTULO PRINCIPAL (01Scripts Hub)
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Size = UDim2.new(0, 400, 0, 20)
     TitleLabel.Position = UDim2.new(0, 18, 0, 10)
@@ -220,7 +233,6 @@ local function OpenMainPanel()
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
     TitleLabel.Parent = TopBar
 
-    -- SUBTÍTULO SECUNDARIO (Nombre de visualización │ Hub)
     local SubLabel = Instance.new("TextLabel")
     SubLabel.Size = UDim2.new(0, 400, 0, 16)
     SubLabel.Position = UDim2.new(0, 18, 0, 30)
@@ -238,7 +250,6 @@ local function OpenMainPanel()
     ContentHolder.BackgroundTransparency = 1
     ContentHolder.Parent = MainFrame
 
-    -- BOTÓN DE CERRAR (X limpia)
     local CloseButton = Instance.new("TextButton")
     CloseButton.Size = UDim2.new(0, 30, 0, 30)
     CloseButton.Position = UDim2.new(1, -40, 0.5, -15)
@@ -253,7 +264,6 @@ local function OpenMainPanel()
         ScreenGui:Destroy()
     end)
 
-    -- BOTÓN DE MINIMIZAR (-) A LA IZQUIERDA DE LA X
     local MinimizeButton = Instance.new("TextButton")
     MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
     MinimizeButton.Position = UDim2.new(1, -75, 0.5, -15)
@@ -283,7 +293,6 @@ local function OpenMainPanel()
     SideBar.BorderSizePixel = 0
     SideBar.Parent = ContentHolder
 
-    -- CONTENEDORES DE PESTAÑAS
     local VisualContainer = Instance.new("ScrollingFrame")
     VisualContainer.Size = UDim2.new(1, -230, 1, -20)
     VisualContainer.Position = UDim2.new(0, 220, 0, 10)
@@ -407,7 +416,6 @@ local function OpenMainPanel()
     CTCorner.CornerRadius = UDim.new(0, 8)
     CTCorner.Parent = ConfigTab
 
-    -- LOGICA DE CAMBIO DE PESTAÑAS
     VisualTab.MouseButton1Click:Connect(function()
         VisualContainer.Visible = true
         AimContainer.Visible = false
@@ -468,7 +476,6 @@ local function OpenMainPanel()
         ExtraTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     end)
 
-    -- VARIABLES Y ESTADOS GLOBALES DE LAS FUNCIONES
     local ESP_Enabled = false
     local Lines_Enabled = false
     local Health_Enabled = false
@@ -476,6 +483,7 @@ local function OpenMainPanel()
     local espMaxDistance = 5000
 
     local Aimbot_Enabled = false
+    local aimbotMouseButton = Enum.UserInputType.MouseButton2 -- Por defecto Click Derecho
     local aimbotSmoothness = 100
     local FOV_Enabled = false
     local fovSize = 150
@@ -489,7 +497,6 @@ local function OpenMainPanel()
     local Speed_Enabled = false
     local moveSpeed = 50
 
-    -- ESTRUCTURA CENTRALIZADA DE TOGGLES Y KEYBINDS
     local togglesData = {
         ESP = { Enabled = false, Key = Enum.KeyCode.E, SetState = function(v) ESP_Enabled = v end },
         Lines = { 
@@ -621,6 +628,8 @@ local function OpenMainPanel()
                 UpdateToggleVisual(id, not data.Enabled)
             end
         end)
+
+        return ToggleFrame, Label
     end
 
     local function CreateSlider(parentContainer, name, min, max, default, callback)
@@ -736,7 +745,120 @@ local function OpenMainPanel()
     CreateToggle(VisualContainer, "Highlight", "Highlight")
     CreateSlider(VisualContainer, "Distancia Máxima ESP", 100, 10000, 5000, function(val) espMaxDistance = val end)
 
-    CreateToggle(AimContainer, "Aimbot", "Aimbot")
+    -- ==========================================
+    -- OPCIÓN AIMBOT + CAJITA DE SELECCIÓN (CLICK DERECHO / IZQUIERDO)
+    -- ==========================================
+    local AimbotFrame, AimbotLabel = CreateToggle(AimContainer, "Aimbot", "Aimbot")
+    AimbotLabel.Size = UDim2.new(0, 65, 1, 0)
+    AimbotFrame.ZIndex = 5
+
+    local DropdownBtn = Instance.new("TextButton")
+    DropdownBtn.Size = UDim2.new(0, 130, 0, 26)
+    DropdownBtn.Position = UDim2.new(0, 82, 0.5, -13)
+    DropdownBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
+    DropdownBtn.TextColor3 = Color3.fromRGB(235, 130, 255)
+    DropdownBtn.Text = "Click Derecho  ▼"
+    DropdownBtn.TextSize = 11
+    DropdownBtn.Font = Enum.Font.GothamBold
+    DropdownBtn.ZIndex = 6
+    DropdownBtn.Parent = AimbotFrame
+
+    local DBCorner = Instance.new("UICorner")
+    DBCorner.CornerRadius = UDim.new(0, 6)
+    DBCorner.Parent = DropdownBtn
+
+    local DBStroke = Instance.new("UIStroke")
+    DBStroke.Color = Color3.fromRGB(72, 27, 117)
+    DBStroke.Thickness = 1
+    DBStroke.Parent = DropdownBtn
+
+    local DropdownBox = Instance.new("Frame")
+    DropdownBox.Size = UDim2.new(0, 130, 0, 56)
+    DropdownBox.Position = UDim2.new(0, 82, 1, 4)
+    DropdownBox.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
+    DropdownBox.BorderSizePixel = 0
+    DropdownBox.Visible = false
+    DropdownBox.ZIndex = 20
+    DropdownBox.Parent = AimbotFrame
+
+    local DBoxCorner = Instance.new("UICorner")
+    DBoxCorner.CornerRadius = UDim.new(0, 6)
+    DBoxCorner.Parent = DropdownBox
+
+    local DBoxStroke = Instance.new("UIStroke")
+    DBoxStroke.Color = Color3.fromRGB(162, 57, 239)
+    DBoxStroke.Thickness = 1
+    DBoxStroke.Parent = DropdownBox
+
+    local OptionRight = Instance.new("TextButton")
+    OptionRight.Size = UDim2.new(1, -6, 0, 24)
+    OptionRight.Position = UDim2.new(0, 3, 0, 3)
+    OptionRight.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
+    OptionRight.TextColor3 = Color3.fromRGB(255, 255, 255)
+    OptionRight.Text = "Click Derecho"
+    OptionRight.TextSize = 11
+    OptionRight.Font = Enum.Font.GothamBold
+    OptionRight.ZIndex = 21
+    OptionRight.Parent = DropdownBox
+
+    local ORCorner = Instance.new("UICorner")
+    ORCorner.CornerRadius = UDim.new(0, 4)
+    ORCorner.Parent = OptionRight
+
+    local OptionLeft = Instance.new("TextButton")
+    OptionLeft.Size = UDim2.new(1, -6, 0, 24)
+    OptionLeft.Position = UDim2.new(0, 3, 0, 29)
+    OptionLeft.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
+    OptionLeft.TextColor3 = Color3.fromRGB(200, 200, 215)
+    OptionLeft.Text = "Click Izquierdo"
+    OptionLeft.TextSize = 11
+    OptionLeft.Font = Enum.Font.Gotham
+    OptionLeft.ZIndex = 21
+    OptionLeft.Parent = DropdownBox
+
+    local OLCorner = Instance.new("UICorner")
+    OLCorner.CornerRadius = UDim.new(0, 4)
+    OLCorner.Parent = OptionLeft
+
+    local function SetAimMouseChoice(choice)
+        if choice == "Left" then
+            aimbotMouseButton = Enum.UserInputType.MouseButton1
+            DropdownBtn.Text = "Click Izquierdo  ▼"
+            OptionLeft.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
+            OptionLeft.TextColor3 = Color3.fromRGB(255, 255, 255)
+            OptionLeft.Font = Enum.Font.GothamBold
+            OptionRight.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
+            OptionRight.TextColor3 = Color3.fromRGB(200, 200, 215)
+            OptionRight.Font = Enum.Font.Gotham
+        else
+            aimbotMouseButton = Enum.UserInputType.MouseButton2
+            DropdownBtn.Text = "Click Derecho  ▼"
+            OptionRight.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
+            OptionRight.TextColor3 = Color3.fromRGB(255, 255, 255)
+            OptionRight.Font = Enum.Font.GothamBold
+            OptionLeft.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
+            OptionLeft.TextColor3 = Color3.fromRGB(200, 200, 215)
+            OptionLeft.Font = Enum.Font.Gotham
+        end
+    end
+
+    DropdownBtn.MouseButton1Click:Connect(function()
+        DropdownBox.Visible = not DropdownBox.Visible
+        PlayBeep()
+    end)
+
+    OptionRight.MouseButton1Click:Connect(function()
+        SetAimMouseChoice("Right")
+        DropdownBox.Visible = false
+        PlayBeep()
+    end)
+
+    OptionLeft.MouseButton1Click:Connect(function()
+        SetAimMouseChoice("Left")
+        DropdownBox.Visible = false
+        PlayBeep()
+    end)
+
     CreateSlider(AimContainer, "Suavidad", 10, 100, 100, function(val) aimbotSmoothness = val end)
     CreateToggle(AimContainer, "FOV", "FOV")
     CreateSlider(AimContainer, "Tamaño FOV", 50, 500, 150, function(val) fovSize = val end)
@@ -750,10 +872,10 @@ local function OpenMainPanel()
     CreateToggle(ExtraContainer, "Speed", "Speed")
     CreateSlider(ExtraContainer, "Walk Speed", 16, 200, 50, function(val) moveSpeed = val end)
 
-    -- PERSISTENCIA DE CONFIGURACIÓN Y KEYBINDS CON ARCHIVOS
     CreateButton(ConfigContainer, "Save Config", function()
         local configData = {
             Toggles = {},
+            AimMouse = (aimbotMouseButton == Enum.UserInputType.MouseButton1) and "Left" or "Right",
             EspMaxDist = espMaxDistance,
             Smoothness = aimbotSmoothness,
             FovSize = fovSize,
@@ -796,6 +918,9 @@ local function OpenMainPanel()
                             end
                         end
                     end
+                    if decoded.AimMouse then
+                        SetAimMouseChoice(decoded.AimMouse)
+                    end
                     espMaxDistance = decoded.EspMaxDist or 5000
                     aimbotSmoothness = decoded.Smoothness or 100
                     fovSize = decoded.FovSize or 150
@@ -812,6 +937,7 @@ local function OpenMainPanel()
         for id, data in pairs(togglesData) do
             UpdateToggleVisual(id, false)
         end
+        SetAimMouseChoice("Right")
         espMaxDistance = 5000
         aimbotSmoothness = 100
         fovSize = 150
@@ -832,7 +958,6 @@ local function OpenMainPanel()
     fovCircle.Color = Color3.fromRGB(162, 57, 239)
     fovCircle.Visible = false
 
-    -- CONTENEDOR DE OBJETOS VISUALES / ESP (DX Drawing / Highlights)
     local espDrawings = {}
 
     local function clearESP()
@@ -924,7 +1049,6 @@ local function OpenMainPanel()
             fovCircle.Visible = false
         end
 
-        -- LOGICA DE RENDERIZADO ESP / LINES / HEALTH / HIGHLIGHT
         if ESP_Enabled or Lines_Enabled or Health_Enabled or Highlight_Enabled then
             local activePlayers = {}
             local linesMarkedCount = 0
@@ -948,7 +1072,6 @@ local function OpenMainPanel()
                             local visible = isVisible(targetHead, char)
                             local dynamicColor = visible and Color3.fromRGB(162, 57, 239) or Color3.fromRGB(85, 255, 127)
 
-                            -- 1. HIGHLIGHT
                             if Highlight_Enabled then
                                 if not espDrawings[player].Highlight then
                                     local hl = Instance.new("Highlight")
@@ -966,7 +1089,6 @@ local function OpenMainPanel()
                                 end
                             end
 
-                            -- 2. ESP BOX
                             if ESP_Enabled then
                                 if not espDrawings[player].Box then
                                     local box = Drawing.new("Square")
@@ -992,7 +1114,6 @@ local function OpenMainPanel()
                                 end
                             end
 
-                            -- 3. LINES
                             if Lines_Enabled then
                                 if not espDrawings[player].Line then
                                     local line = Drawing.new("Line")
@@ -1019,7 +1140,6 @@ local function OpenMainPanel()
                                 end
                             end
 
-                            -- 4. HEALTH BAR
                             if Health_Enabled then
                                 if not espDrawings[player].HealthBar then
                                     local hbBg = Drawing.new("Square")
@@ -1085,8 +1205,8 @@ local function OpenMainPanel()
             CountLabel.Text = "0"
         end
 
-        local rightMouseDown = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
-        if Aimbot_Enabled and rightMouseDown then
+        local mouseTriggerDown = UserInputService:IsMouseButtonPressed(aimbotMouseButton)
+        if Aimbot_Enabled and mouseTriggerDown then
             local closestTarget = nil
             local shortestDistance = fovSize
 
@@ -1123,9 +1243,6 @@ local function OpenMainPanel()
     end)
 end
 
--- ==========================================
--- CONEXIÓN DE BOTÓN DE VERIFICACIÓN
--- ==========================================
 VerifyButton.MouseButton1Click:Connect(function()
     local enteredKey = KeyInput.Text
     if enteredKey == "" then
@@ -1137,7 +1254,7 @@ VerifyButton.MouseButton1Click:Connect(function()
     StatusMsg.Text = "Verificando..."
 
     task.spawn(function()
-        local isValid = verifyKey(enteredKey)
+        local isValid, message = verifyKey(enteredKey)
         if isValid then
             StatusMsg.TextColor3 = Color3.fromRGB(85, 255, 127)
             StatusMsg.Text = "¡Key correcta! Abriendo panel..."
@@ -1145,7 +1262,7 @@ VerifyButton.MouseButton1Click:Connect(function()
             OpenMainPanel()
         else
             StatusMsg.TextColor3 = Color3.fromRGB(255, 85, 85)
-            StatusMsg.Text = "Key inválida o expirada."
+            StatusMsg.Text = message or "Key inválida o expirada."
         end
     end)
 end)

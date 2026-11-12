@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (Persistent CONFIG via File)
+-- 01Scripts | Panel 2 (Pitido Agudo al 150% en Todos los Apartados + Anti-Spam)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -9,7 +9,6 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
-local Mouse = LocalPlayer:GetMouse()
 
 local GITHUB_KEYS_URL = "https://raw.githubusercontent.com/caracaswai-ai/auth-keys/main/keys2.json"
 local CONFIG_FILE_NAME = "01Scripts_Config.json"
@@ -118,6 +117,28 @@ StatusMsg.Parent = LoginFrame
 
 local function OpenMainPanel()
     LoginGui:Destroy()
+
+    -- Control de tiempo para evitar sonidos duplicados simultáneos (Anti-Spam)
+    local lastBeepTick = 0
+    local function PlayBeep()
+        local currentTick = tick()
+        if currentTick - lastBeepTick < 0.08 then return end -- Evita pitidos encimados en un rango de 80ms
+        lastBeepTick = currentTick
+
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://4590657391"
+        sound.Volume = 1.5 -- 150% de volumen
+        sound.Parent = CoreGui
+        
+        local pitch = Instance.new("PitchShiftSoundEffect")
+        pitch.Octave = 2.8 -- Pitido más agudo
+        pitch.Parent = sound
+        
+        sound:Play()
+        sound.Ended:Connect(function()
+            sound:Destroy()
+        end)
+    end
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "01Scripts_Panel2_Main"
@@ -442,6 +463,7 @@ local function OpenMainPanel()
         ExtraTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     end)
 
+    -- VARIABLES Y ESTADOS GLOBALES DE LAS FUNCIONES
     local ESP_Enabled = false
     local Lines_Enabled = false
     local Health_Enabled = false
@@ -462,7 +484,85 @@ local function OpenMainPanel()
     local Speed_Enabled = false
     local moveSpeed = 50
 
-    local function CreateToggle(parentContainer, name, callback)
+    -- ESTRUCTURA CENTRALIZADA DE TOGGLES Y KEYBINDS (Pitido habilitado para todos)
+    local togglesData = {
+        ESP = {
+            Enabled = false, 
+            Key = Enum.KeyCode.E, 
+            SetState = function(v) ESP_Enabled = v end
+        },
+        Lines = {
+            Enabled = false, 
+            Key = Enum.KeyCode.L, 
+            SetState = function(v) 
+                Lines_Enabled = v 
+                if not v then TopIndicatorFrame.Visible = false end 
+            end
+        },
+        Health = {
+            Enabled = false, 
+            Key = Enum.KeyCode.H, 
+            SetState = function(v) Health_Enabled = v end
+        },
+        Highlight = {
+            Enabled = false, 
+            Key = Enum.KeyCode.J, 
+            SetState = function(v) Highlight_Enabled = v end
+        },
+        
+        Aimbot = {
+            Enabled = false, 
+            Key = Enum.KeyCode.Q, 
+            SetState = function(v) Aimbot_Enabled = v end
+        },
+        FOV = {
+            Enabled = false, 
+            Key = Enum.KeyCode.F, 
+            SetState = function(v) FOV_Enabled = v end
+        },
+        Paredes = {
+            Enabled = false, 
+            Key = Enum.KeyCode.X, 
+            SetState = function(v) wallCheck_Enabled = v end
+        },
+
+        Fly = {
+            Enabled = false, 
+            Key = Enum.KeyCode.R, 
+            SetState = function(v) Fly_Enabled = v end
+        },
+        Noclip = {
+            Enabled = false, 
+            Key = Enum.KeyCode.N, 
+            SetState = function(v) Noclip_Enabled = v end
+        },
+        Speed = {
+            Enabled = false, 
+            Key = Enum.KeyCode.Z, 
+            SetState = function(v) Speed_Enabled = v end
+        },
+    }
+
+    local function UpdateToggleVisual(id, state)
+        local data = togglesData[id]
+        if not data then return end
+        data.Enabled = state
+        if data.SwitchBg and data.Knob then
+            if state then
+                data.SwitchBg.BackgroundColor3 = Color3.fromRGB(162, 57, 239)
+                data.Knob:TweenPosition(UDim2.new(1, -21, 0.5, -9), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true)
+            else
+                data.SwitchBg.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+                data.Knob:TweenPosition(UDim2.new(0, 3, 0.5, -9), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true)
+            end
+        end
+        pcall(function() data.SetState(state) end)
+
+        -- Reproduce un único pitido general para cualquier función activada
+        PlayBeep()
+    end
+
+    local function CreateToggle(parentContainer, id, name)
         local ToggleFrame = Instance.new("Frame")
         ToggleFrame.Size = UDim2.new(1, 0, 0, 50)
         ToggleFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
@@ -474,7 +574,7 @@ local function OpenMainPanel()
         TFCorner.Parent = ToggleFrame
 
         local Label = Instance.new("TextLabel")
-        Label.Size = UDim2.new(0, 200, 1, 0)
+        Label.Size = UDim2.new(0, 160, 1, 0)
         Label.Position = UDim2.new(0, 18, 0, 0)
         Label.BackgroundTransparency = 1
         Label.Text = name
@@ -484,6 +584,47 @@ local function OpenMainPanel()
         Label.TextXAlignment = Enum.TextXAlignment.Left
         Label.Parent = ToggleFrame
 
+        -- Botón de Tecla (Keybind)
+        local KeybindBtn = Instance.new("TextButton")
+        KeybindBtn.Size = UDim2.new(0, 55, 0, 24)
+        KeybindBtn.Position = UDim2.new(1, -125, 0.5, -12)
+        KeybindBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
+        KeybindBtn.TextColor3 = Color3.fromRGB(200, 200, 215)
+        KeybindBtn.TextSize = 11
+        KeybindBtn.Font = Enum.Font.GothamBold
+        KeybindBtn.Parent = ToggleFrame
+
+        local KBCorner = Instance.new("UICorner")
+        KBCorner.CornerRadius = UDim.new(0, 6)
+        KBCorner.Parent = KeybindBtn
+
+        local data = togglesData[id]
+        if data then
+            KeybindBtn.Text = data.Key.Name
+            data.KeyButton = KeybindBtn
+        end
+
+        local listening = false
+        KeybindBtn.MouseButton1Click:Connect(function()
+            listening = true
+            KeybindBtn.Text = "..."
+            KeybindBtn.TextColor3 = Color3.fromRGB(235, 130, 255)
+        end)
+
+        UserInputService.InputBegan:Connect(function(input, gp)
+            if listening then
+                if input.UserInputType == Enum.UserInputType.Keyboard then
+                    data.Key = input.KeyCode
+                    KeybindBtn.Text = input.KeyCode.Name
+                    KeybindBtn.TextColor3 = Color3.fromRGB(200, 200, 215)
+                    listening = false
+                end
+            elseif not gp and data and input.KeyCode == data.Key then
+                UpdateToggleVisual(id, not data.Enabled)
+            end
+        end)
+
+        -- Interruptor visual
         local SwitchBg = Instance.new("TextButton")
         SwitchBg.Size = UDim2.new(0, 46, 0, 24)
         SwitchBg.Position = UDim2.new(1, -62, 0.5, -12)
@@ -505,17 +646,15 @@ local function OpenMainPanel()
         KCorner.CornerRadius = UDim.new(1, 0)
         KCorner.Parent = Knob
 
-        local enabled = false
+        if data then
+            data.SwitchBg = SwitchBg
+            data.Knob = Knob
+        end
+
         SwitchBg.MouseButton1Click:Connect(function()
-            enabled = not enabled
-            if enabled then
-                SwitchBg.BackgroundColor3 = Color3.fromRGB(162, 57, 239)
-                Knob:TweenPosition(UDim2.new(1, -21, 0.5, -9), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true)
-            else
-                SwitchBg.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
-                Knob:TweenPosition(UDim2.new(0, 3, 0.5, -9), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true)
+            if data then
+                UpdateToggleVisual(id, not data.Enabled)
             end
-            pcall(function() callback(enabled) end)
         end)
     end
 
@@ -630,50 +769,45 @@ local function OpenMainPanel()
         end)
     end
 
-    CreateToggle(VisualContainer, "ESP", function(state) ESP_Enabled = state end)
-    CreateToggle(VisualContainer, "Lines", function(state) 
-        Lines_Enabled = state 
-        if not state then TopIndicatorFrame.Visible = false end
-    end)
-    CreateToggle(VisualContainer, "Health", function(state) Health_Enabled = state end)
-    CreateToggle(VisualContainer, "Highlight", function(state) Highlight_Enabled = state end)
+    CreateToggle(VisualContainer, "ESP", "ESP")
+    CreateToggle(VisualContainer, "Lines", "Lines")
+    CreateToggle(VisualContainer, "Health", "Health")
+    CreateToggle(VisualContainer, "Highlight", "Highlight")
     CreateSlider(VisualContainer, "Distancia Máxima ESP", 100, 10000, 5000, function(val) espMaxDistance = val end)
 
-    CreateToggle(AimContainer, "Aimbot", function(state) Aimbot_Enabled = state end)
+    CreateToggle(AimContainer, "Aimbot", "Aimbot")
     CreateSlider(AimContainer, "Suavidad", 10, 100, 100, function(val) aimbotSmoothness = val end)
-    CreateToggle(AimContainer, "FOV", function(state) FOV_Enabled = state end)
+    CreateToggle(AimContainer, "FOV", "FOV")
     CreateSlider(AimContainer, "Tamaño FOV", 50, 500, 150, function(val) fovSize = val end)
     CreateSlider(AimContainer, "Transparencia FOV", 0, 100, 100, function(val) fovTransparency = val end)
     CreateSlider(AimContainer, "Distancia Máxima", 50, 1000, 500, function(val) maxDistance = val end)
-    CreateToggle(AimContainer, "Paredes", function(state) wallCheck_Enabled = state end)
+    CreateToggle(AimContainer, "Paredes", "Paredes")
 
-    CreateToggle(ExtraContainer, "Fly", function(state) Fly_Enabled = state end)
+    CreateToggle(ExtraContainer, "Fly", "Fly")
     CreateSlider(ExtraContainer, "Fly Speed", 10, 300, 50, function(val) flySpeed = val end)
-    CreateToggle(ExtraContainer, "Noclip", function(state) Noclip_Enabled = state end)
-    CreateToggle(ExtraContainer, "Speed", function(state) Speed_Enabled = state end)
+    CreateToggle(ExtraContainer, "Noclip", "Noclip")
+    CreateToggle(ExtraContainer, "Speed", "Speed")
     CreateSlider(ExtraContainer, "Walk Speed", 16, 200, 50, function(val) moveSpeed = val end)
 
-    -- PERSISTENCIA DE CONFIGURACIÓN CON ARCHIVOS
+    -- PERSISTENCIA DE CONFIGURACIÓN Y KEYBINDS CON ARCHIVOS
     CreateButton(ConfigContainer, "Save Config", function()
         local configData = {
-            ESP = ESP_Enabled,
-            Lines = Lines_Enabled,
-            Health = Health_Enabled,
-            Highlight = Highlight_Enabled,
+            Toggles = {},
             EspMaxDist = espMaxDistance,
-            Aimbot = Aimbot_Enabled,
             Smoothness = aimbotSmoothness,
-            FOV = FOV_Enabled,
             FovSize = fovSize,
             FovTrans = fovTransparency,
             MaxDist = maxDistance,
-            WallCheck = wallCheck_Enabled,
-            Fly = Fly_Enabled,
             FlySpd = flySpeed,
-            Noclip = Noclip_Enabled,
-            Speed = Speed_Enabled,
             MoveSpd = moveSpeed
         }
+        
+        for id, data in pairs(togglesData) do
+            configData.Toggles[id] = {
+                Enabled = data.Enabled,
+                Key = data.Key.Name
+            }
+        end
         
         if writefile then
             pcall(function()
@@ -688,22 +822,25 @@ local function OpenMainPanel()
                 local content = readfile(CONFIG_FILE_NAME)
                 local decoded = HttpService:JSONDecode(content)
                 if decoded then
-                    ESP_Enabled = decoded.ESP or false
-                    Lines_Enabled = decoded.Lines or false
-                    Health_Enabled = decoded.Health or false
-                    Highlight_Enabled = decoded.Highlight or false
+                    if decoded.Toggles then
+                        for id, info in pairs(decoded.Toggles) do
+                            if togglesData[id] then
+                                UpdateToggleVisual(id, info.Enabled)
+                                if info.Key and Enum.KeyCode[info.Key] then
+                                    togglesData[id].Key = Enum.KeyCode[info.Key]
+                                    if togglesData[id].KeyButton then
+                                        togglesData[id].KeyButton.Text = info.Key
+                                    end
+                                end
+                            end
+                        end
+                    end
                     espMaxDistance = decoded.EspMaxDist or 5000
-                    Aimbot_Enabled = decoded.Aimbot or false
                     aimbotSmoothness = decoded.Smoothness or 100
-                    FOV_Enabled = decoded.FOV or false
                     fovSize = decoded.FovSize or 150
                     fovTransparency = decoded.FovTrans or 100
                     maxDistance = decoded.MaxDist or 500
-                    wallCheck_Enabled = decoded.WallCheck or false
-                    Fly_Enabled = decoded.Fly or false
                     flySpeed = decoded.FlySpd or 50
-                    Noclip_Enabled = decoded.Noclip or false
-                    Speed_Enabled = decoded.Speed or false
                     moveSpeed = decoded.MoveSpd or 50
                 end
             end)
@@ -711,24 +848,15 @@ local function OpenMainPanel()
     end)
 
     CreateButton(ConfigContainer, "Reset All", function()
-        ESP_Enabled = false
-        Lines_Enabled = false
-        Health_Enabled = false
-        Highlight_Enabled = false
+        for id, data in pairs(togglesData) do
+            UpdateToggleVisual(id, false)
+        end
         espMaxDistance = 5000
-
-        Aimbot_Enabled = false
         aimbotSmoothness = 100
-        FOV_Enabled = false
         fovSize = 150
         fovTransparency = 100
         maxDistance = 500
-        wallCheck_Enabled = false
-
-        Fly_Enabled = false
         flySpeed = 50
-        Noclip_Enabled = false
-        Speed_Enabled = false
         moveSpeed = 50
         
         if delfile and pcall(function() readfile(CONFIG_FILE_NAME) end) then
@@ -743,18 +871,46 @@ local function OpenMainPanel()
     fovCircle.Color = Color3.fromRGB(162, 57, 239)
     fovCircle.Visible = false
 
+    -- CONTENEDOR DE OBJETOS VISUALES / ESP (DX Drawing / Highlights)
+    local espDrawings = {}
+
+    local function clearESP()
+        for _, obj in pairs(espDrawings) do
+            if obj.Box then obj.Box:Remove() end
+            if obj.Line then obj.Line:Remove() end
+            if obj.HealthBar then obj.HealthBar:Remove() end
+            if obj.HealthBg then obj.HealthBg:Remove() end
+            if obj.Highlight then obj.Highlight:Destroy() end
+        end
+        espDrawings = {}
+    end
+
     local aimRayParams = RaycastParams.new()
     aimRayParams.FilterType = Enum.RaycastFilterType.Exclude
+    aimRayParams.IgnoreWater = true
+
+    local function isVisible(targetPart, originChar)
+        if not originChar then return true end
+        aimRayParams.FilterDescendantsInstances = {originChar, Camera}
+        local originPos = Camera.CFrame.Position
+        local direction = targetPart.Position - originPos
+        local result = workspace:Raycast(originPos, direction, aimRayParams)
+        
+        if result then
+            local hitInstance = result.Instance
+            if hitInstance:IsDescendantOf(targetPart.Parent) then
+                return true
+            end
+            return false
+        end
+        return true
+    end
 
     local flyBodyGyro, flyBodyVelocity
     RunService.RenderStepped:Connect(function()
         local char = LocalPlayer.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
         local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-
-        if char then
-            aimRayParams.FilterDescendantsInstances = {char}
-        end
 
         if Noclip_Enabled and char then
             for _, part in ipairs(char:GetDescendants()) do
@@ -807,41 +963,178 @@ local function OpenMainPanel()
             fovCircle.Visible = false
         end
 
-        local rightMouseDown = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
-        if Aimbot_Enabled and rightMouseDown then
-            local closestTarget = nil
-            local shortestDistance = fovSize
-            local localHrp = hrp
-
+        -- LOGICA DE RENDERIZADO ESP / LINES / HEALTH / HIGHLIGHT (CON CAMBIO DE COLOR DINÁMICO)
+        if ESP_Enabled or Lines_Enabled or Health_Enabled or Highlight_Enabled then
+            local activePlayers = {}
             for _, player in ipairs(Players:GetPlayers()) do
                 if player ~= LocalPlayer and player.Character then
                     local targetChar = player.Character
                     local targetHrp = targetChar:FindFirstChild("HumanoidRootPart")
-                    local targetHead = targetChar:FindFirstChild("Head")
+                    local targetHead = targetChar:FindFirstChild("Head") or targetHrp
                     local targetHumanoid = targetChar:FindFirstChildOfClass("Humanoid")
 
-                    if targetHead and targetHrp and targetHumanoid and targetHumanoid.Health > 0 and localHrp then
-                        local distanceToPlayer = (targetHrp.Position - localHrp.Position).Magnitude
-                        
-                        if distanceToPlayer <= maxDistance then
-                            local isValidTarget = true
-                            if wallCheck_Enabled then
-                                local origin = Camera.CFrame.Position
-                                local direction = (targetHead.Position - origin)
-                                local rayResult = workspace:Raycast(origin, direction, aimRayParams)
-                                if rayResult then
-                                    local hitInst = rayResult.Instance
-                                    if not hitInst:IsDescendantOf(targetChar) then
-                                        isValidTarget = false
-                                    end
+                    if targetHrp and targetHumanoid and targetHumanoid.Health > 0 then
+                        local dist = (targetHrp.Position - Camera.CFrame.Position).Magnitude
+                        if dist <= espMaxDistance then
+                            activePlayers[player] = true
+
+                            if not espDrawings[player] then
+                                espDrawings[player] = {}
+                            end
+
+                            local visible = isVisible(targetHead, char)
+                            local dynamicColor = visible and Color3.fromRGB(162, 57, 239) or Color3.fromRGB(85, 255, 127)
+
+                            -- 1. HIGHLIGHT
+                            if Highlight_Enabled then
+                                if not espDrawings[player].Highlight then
+                                    local hl = Instance.new("Highlight")
+                                    hl.Adornee = targetChar
+                                    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                                    hl.FillTransparency = 0.5
+                                    hl.Parent = CoreGui
+                                    espDrawings[player].Highlight = hl
+                                end
+                                espDrawings[player].Highlight.FillColor = dynamicColor
+                            else
+                                if espDrawings[player].Highlight then
+                                    espDrawings[player].Highlight:Destroy()
+                                    espDrawings[player].Highlight = nil
                                 end
                             end
 
-                            if isValidTarget then
-                                local screenPos, onScreen = Camera:WorldToViewportPoint(targetHead.Position)
+                            -- 2. ESP BOX (CUADRO)
+                            if ESP_Enabled then
+                                if not espDrawings[player].Box then
+                                    local box = Drawing.new("Square")
+                                    box.Thickness = 1.5
+                                    box.Filled = false
+                                    espDrawings[player].Box = box
+                                end
+                                
+                                espDrawings[player].Box.Color = dynamicColor
+                                local pos, onScreen = Camera:WorldToViewportPoint(targetHrp.Position)
                                 if onScreen then
-                                    local magnitude = (Vector2.new(screenPos.X, screenPos.Y) - mouseLocation).Magnitude
-                                    if magnitude < shortestDistance then
+                                    local size = Vector2.new(2000 / dist, 4000 / dist)
+                                    espDrawings[player].Box.Size = size
+                                    espDrawings[player].Box.Position = Vector2.new(pos.X - size.X / 2, pos.Y - size.Y / 2)
+                                    espDrawings[player].Box.Visible = true
+                                else
+                                    espDrawings[player].Box.Visible = false
+                                end
+                            else
+                                if espDrawings[player].Box then
+                                    espDrawings[player].Box:Remove()
+                                    espDrawings[player].Box = nil
+                                end
+                            end
+
+                            -- 3. LINES (LÍNEAS A JUGADORES)
+                            if Lines_Enabled then
+                                if not espDrawings[player].Line then
+                                    local line = Drawing.new("Line")
+                                    line.Thickness = 1
+                                    espDrawings[player].Line = line
+                                end
+
+                                espDrawings[player].Line.Color = dynamicColor
+                                local pos, onScreen = Camera:WorldToViewportPoint(targetHrp.Position)
+                                if onScreen then
+                                    espDrawings[player].Line.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+                                    espDrawings[player].Line.To = Vector2.new(pos.X, pos.Y)
+                                    espDrawings[player].Line.Visible = true
+                                    TopIndicatorFrame.Visible = true
+                                else
+                                    espDrawings[player].Line.Visible = false
+                                end
+                            else
+                                if espDrawings[player].Line then
+                                    espDrawings[player].Line:Remove()
+                                    espDrawings[player].Line = nil
+                                end
+                            end
+
+                            -- 4. HEALTH BAR
+                            if Health_Enabled then
+                                if not espDrawings[player].HealthBar then
+                                    local hbBg = Drawing.new("Square")
+                                    hbBg.Filled = true
+                                    hbBg.Color = Color3.fromRGB(0, 0, 0)
+                                    hbBg.Thickness = 1
+                                    
+                                    local hb = Drawing.new("Square")
+                                    hb.Filled = true
+                                    hb.Color = Color3.fromRGB(85, 255, 127)
+                                    
+                                    espDrawings[player].HealthBg = hbBg
+                                    espDrawings[player].HealthBar = hb
+                                end
+
+                                local pos, onScreen = Camera:WorldToViewportPoint(targetHrp.Position)
+                                if onScreen then
+                                    local size = Vector2.new(2000 / dist, 4000 / dist)
+                                    local healthPercent = math.clamp(targetHumanoid.Health / targetHumanoid.MaxHealth, 0, 1)
+                                    
+                                    espDrawings[player].HealthBg.Size = Vector2.new(3, size.Y)
+                                    espDrawings[player].HealthBg.Position = Vector2.new(pos.X - size.X / 2 - 6, pos.Y - size.Y / 2)
+                                    espDrawings[player].HealthBg.Visible = true
+
+                                    espDrawings[player].HealthBar.Size = Vector2.new(1, size.Y * healthPercent)
+                                    espDrawings[player].HealthBar.Position = Vector2.new(pos.X - size.X / 2 - 5, pos.Y - size.Y / 2 + (size.Y * (1 - healthPercent)))
+                                    espDrawings[player].HealthBar.Visible = true
+                                else
+                                    espDrawings[player].HealthBg.Visible = false
+                                    espDrawings[player].HealthBar.Visible = false
+                                end
+                            else
+                                if espDrawings[player].HealthBar then
+                                    espDrawings[player].HealthBar:Remove()
+                                    espDrawings[player].HealthBar = nil
+                                end
+                                if espDrawings[player].HealthBg then
+                                    espDrawings[player].HealthBg:Remove()
+                                    espDrawings[player].HealthBg = nil
+                                end
+                            end
+
+                        end
+                    end
+                end
+            end
+
+            for p, obj in pairs(espDrawings) do
+                if not activePlayers[p] then
+                    if obj.Box then obj.Box:Remove() end
+                    if obj.Line then obj.Line:Remove() end
+                    if obj.HealthBar then obj.HealthBar:Remove() end
+                    if obj.HealthBg then obj.HealthBg:Remove() end
+                    if obj.Highlight then obj.Highlight:Destroy() end
+                    espDrawings[p] = nil
+                end
+            end
+        else
+            clearESP()
+        end
+
+        local rightMouseDown = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
+        if Aimbot_Enabled and rightMouseDown then
+            local closestTarget = nil
+            local shortestDistance = fovSize
+
+            for _, player in ipairs(Players:GetPlayers()) do
+                if player ~= LocalPlayer and player.Character then
+                    local targetChar = player.Character
+                    local targetHead = targetChar:FindFirstChild("Head")
+                    local targetHumanoid = targetChar:FindFirstChildOfClass("Humanoid")
+
+                    if targetHead and targetHumanoid and targetHumanoid.Health > 0 then
+                        local screenPoint, onScreen = Camera:WorldToViewportPoint(targetHead.Position)
+                        if onScreen then
+                            local magnitude = (Vector2.new(screenPoint.X, screenPoint.Y) - mouseLocation).Magnitude
+                            if magnitude < shortestDistance then
+                                local dist3D = (targetHead.Position - Camera.CFrame.Position).Magnitude
+                                if dist3D <= maxDistance then
+                                    if not wallCheck_Enabled or isVisible(targetHead, char) then
                                         shortestDistance = magnitude
                                         closestTarget = targetHead
                                     end
@@ -853,225 +1146,33 @@ local function OpenMainPanel()
             end
 
             if closestTarget then
-                local adjustedTargetPos = closestTarget.Position + Vector3.new(0, 0.5, 0)
-
-                if aimbotSmoothness >= 100 then
-                    Camera.CFrame = CFrame.new(Camera.CFrame.Position, adjustedTargetPos)
-                else
-                    local smoothnessFactor = math.clamp((100 - aimbotSmoothness) / 5, 1, 20)
-                    Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, adjustedTargetPos), 1 / smoothnessFactor)
-                end
+                local targetPos = CFrame.new(Camera.CFrame.Position, closestTarget.Position)
+                local smoothnessVal = math.clamp(aimbotSmoothness, 10, 100)
+                Camera.CFrame = Camera.CFrame:Lerp(targetPos, smoothnessVal / 100)
             end
-        end
-    end)
-
-    local espCache = {}
-    local highlightCache = {}
-    local raycastParams = RaycastParams.new()
-    raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-
-    local BOX_THICKNESS = 1.5    
-    local LINE_THICKNESS = 1.6  
-
-    local function removeEsp(player)
-        if espCache[player] then
-            if espCache[player].box then espCache[player].box:Remove() end
-            if espCache[player].line then espCache[player].line:Remove() end
-            if espCache[player].healthBar then espCache[player].healthBar:Remove() end
-            if espCache[player].healthBg then espCache[player].healthBg:Remove() end
-            espCache[player] = nil
-        end
-        if highlightCache[player] then
-            highlightCache[player]:Destroy()
-            highlightCache[player] = nil
-        end
-    end
-
-    Players.PlayerRemoving:Connect(function(player)
-        removeEsp(player)
-    end)
-
-    RunService.RenderStepped:Connect(function()
-        local localChar = LocalPlayer.Character
-        local localHrp = localChar and localChar:FindFirstChild("HumanoidRootPart")
-
-        if localChar then
-            raycastParams.FilterDescendantsInstances = {localChar}
-        end
-
-        local playersWithLinesCount = 0
-
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer and player.Character then
-                local char = player.Character
-                local hrp = char:FindFirstChild("HumanoidRootPart")
-                local humanoid = char:FindFirstChildOfClass("Humanoid")
-                local head = char:FindFirstChild("Head")
-
-                if hrp and humanoid and head and localHrp then
-                    local distance = (hrp.Position - localHrp.Position).Magnitude
-
-                    if distance <= espMaxDistance then
-                        local isAlive = humanoid.Health > 0
-
-                        local isBehindWall = false
-                        if head and Camera and isAlive then
-                            local origin = Camera.CFrame.Position
-                            local direction = (head.Position - origin)
-                            local rayResult = workspace:Raycast(origin, direction, raycastParams)
-                            
-                            if rayResult then
-                                local hitInstance = rayResult.Instance
-                                if not hitInstance:IsDescendantOf(char) then
-                                    isBehindWall = true
-                                end
-                            end
-                        end
-
-                        local dynamicColor = isBehindWall and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-
-                        if Highlight_Enabled and isAlive then
-                            if not highlightCache[player] or highlightCache[player].Parent ~= char then
-                                if highlightCache[player] then highlightCache[player]:Destroy() end
-                                local hl = Instance.new("Highlight")
-                                hl.Name = "01Scripts_PermanentHighlight"
-                                hl.Adornee = char
-                                hl.FillTransparency = 0.5
-                                hl.OutlineTransparency = 0
-                                hl.Parent = char
-                                highlightCache[player] = hl
-                            end
-                            highlightCache[player].Enabled = true
-                            highlightCache[player].FillColor = dynamicColor
-                            highlightCache[player].OutlineColor = dynamicColor
-                        else
-                            if highlightCache[player] then
-                                highlightCache[player].Enabled = false
-                            end
-                        end
-
-                        if not espCache[player] then
-                            local box = Drawing.new("Square")
-                            box.Thickness = BOX_THICKNESS
-                            box.Filled = false
-                            
-                            local line = Drawing.new("Line")
-                            line.Thickness = LINE_THICKNESS
-
-                            local healthBg = Drawing.new("Square")
-                            healthBg.Thickness = 1
-                            healthBg.Filled = true
-                            healthBg.Color = Color3.fromRGB(0, 0, 0)
-
-                            local healthBar = Drawing.new("Square")
-                            healthBar.Thickness = 1
-                            healthBar.Filled = true
-
-                            espCache[player] = {box = box, line = line, healthBg = healthBg, healthBar = healthBar}
-                        end
-
-                        local cache = espCache[player]
-                        local box = cache.box
-                        local line = cache.line
-                        local healthBg = cache.healthBg
-                        local healthBar = cache.healthBar
-
-                        if ESP_Enabled and isAlive then
-                            local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
-                            if onScreen then
-                                local size = Vector2.new((2000 / distance) * 0.922, (3500 / distance) * 0.922)
-                                local boxPos = Vector2.new(pos.X - size.X / 2, pos.Y - size.Y / 2)
-
-                                box.Size = size
-                                box.Position = boxPos
-                                box.Color = dynamicColor
-                                box.Visible = true
-
-                                if Health_Enabled then
-                                    local healthWidth = math.max(2, size.X * 0.04)
-                                    local healthHeight = size.Y
-                                    local healthX = boxPos.X - healthWidth - 4
-                                    local healthY = boxPos.Y
-
-                                    healthBg.Size = Vector2.new(healthWidth, healthHeight)
-                                    healthBg.Position = Vector2.new(healthX, healthY)
-                                    healthBg.Visible = true
-
-                                    local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
-                                    local currentHealthHeight = healthHeight * healthPercent
-                                    
-                                    healthBar.Size = Vector2.new(healthWidth, currentHealthHeight)
-                                    healthBar.Position = Vector2.new(healthX, healthY + (healthHeight - currentHealthHeight))
-                                    healthBar.Color = Color3.fromHSV(healthPercent * 0.33, 1, 1)
-                                    healthBar.Visible = true
-                                else
-                                    healthBg.Visible = false
-                                    healthBar.Visible = false
-                                end
-                            else
-                                box.Visible = false
-                                healthBg.Visible = false
-                                healthBar.Visible = false
-                            end
-                        else
-                            box.Visible = false
-                            healthBg.Visible = false
-                            healthBar.Visible = false
-                        end
-
-                        if Lines_Enabled and isAlive then
-                            local headPos, headOnScreen = Camera:WorldToViewportPoint(head.Position)
-                            if headOnScreen then
-                                line.From = Vector2.new(Camera.ViewportSize.X / 2, 0)
-                                line.To = Vector2.new(headPos.X, headPos.Y)
-                                line.Color = dynamicColor
-                                line.Visible = true
-                                playersWithLinesCount = playersWithLinesCount + 1
-                            else
-                                line.Visible = false
-                            end
-                        else
-                            line.Visible = false
-                        end
-                    else
-                        removeEsp(player)
-                    end
-                else
-                    removeEsp(player)
-                end
-            else
-                removeEsp(player)
-            end
-        end
-
-        if Lines_Enabled and playersWithLinesCount > 0 then
-            TopIndicatorFrame.Visible = true
-            CountLabel.Text = tostring(playersWithLinesCount)
-        else
-            TopIndicatorFrame.Visible = false
         end
     end)
 end
 
 -- ==========================================
--- CONEXIÓN DEL BOTÓN DE VERIFICACIÓN
+-- CONEXIÓN DE BOTÓN DE VERIFICACIÓN
 -- ==========================================
 VerifyButton.MouseButton1Click:Connect(function()
-    local userKey = KeyInput.Text
-    if userKey == "" then
-        StatusMsg.Text = "Por favor ingresa una key."
+    local enteredKey = KeyInput.Text
+    if enteredKey == "" then
+        StatusMsg.Text = "Por favor ingresa una Key."
         return
     end
 
-    StatusMsg.TextColor3 = Color3.fromRGB(255, 200, 0)
-    StatusMsg.Text = "Verificando key..."
+    StatusMsg.TextColor3 = Color3.fromRGB(255, 200, 85)
+    StatusMsg.Text = "Verificando..."
 
     task.spawn(function()
-        local isValid = verifyKey(userKey)
+        local isValid = verifyKey(enteredKey)
         if isValid then
-            StatusMsg.TextColor3 = Color3.fromRGB(0, 255, 100)
-            StatusMsg.Text = "¡Key válida! Abriendo panel..."
-            task.wait(0.8)
+            StatusMsg.TextColor3 = Color3.fromRGB(85, 255, 127)
+            StatusMsg.Text = "¡Key correcta! Abriendo panel..."
+            task.wait(0.6)
             OpenMainPanel()
         else
             StatusMsg.TextColor3 = Color3.fromRGB(255, 85, 85)

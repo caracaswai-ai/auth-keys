@@ -19,5 +19,12 @@
     "allowedHWIDs": [],
     "usedBy": "10s",
     "expiresAt": 1794598335
+  },
+  "FREE-KEY-4AQ1R4QL": {
+    "durationDays": 1,
+    "maxDevices": 1,
+    "allowedHWIDs": [],
+    "usedBy": "10s",
+    "expiresAt": 1794604194
   }
 }

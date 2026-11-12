@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (Selector Click Derecho / Izquierdo en Aimbot)
+-- 01Scripts | Panel 2 (Desplegable Flotante sobre la Interfaz)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -48,6 +48,7 @@ end
 -- ==========================================
 local LoginGui = Instance.new("ScreenGui")
 LoginGui.Name = "01Scripts_Panel2_Login"
+LoginGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 LoginGui.Parent = CoreGui
 LoginGui.ResetOnSpawn = false
 
@@ -157,6 +158,7 @@ local function OpenMainPanel()
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "01Scripts_Panel2_Main"
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     ScreenGui.Parent = CoreGui
     ScreenGui.ResetOnSpawn = false
     ScreenGui.IgnoreGuiInset = true
@@ -310,7 +312,7 @@ local function OpenMainPanel()
     AimContainer.Size = UDim2.new(1, -230, 1, -20)
     AimContainer.Position = UDim2.new(0, 220, 0, 10)
     AimContainer.BackgroundTransparency = 1
-    AimContainer.CanvasSize = UDim2.new(0, 0, 0, 650)
+    AimContainer.CanvasSize = UDim2.new(0, 0, 0, 700)
     AimContainer.ScrollBarThickness = 3
     AimContainer.Visible = false
     AimContainer.Parent = ContentHolder
@@ -483,7 +485,7 @@ local function OpenMainPanel()
     local espMaxDistance = 5000
 
     local Aimbot_Enabled = false
-    local aimbotMouseButton = Enum.UserInputType.MouseButton2 -- Por defecto Click Derecho
+    local aimbotMouseButton = Enum.UserInputType.MouseButton2
     local aimbotSmoothness = 100
     local FOV_Enabled = false
     local fovSize = 150
@@ -746,21 +748,19 @@ local function OpenMainPanel()
     CreateSlider(VisualContainer, "Distancia Máxima ESP", 100, 10000, 5000, function(val) espMaxDistance = val end)
 
     -- ==========================================
-    -- OPCIÓN AIMBOT + CAJITA DE SELECCIÓN (CLICK DERECHO / IZQUIERDO)
+    -- AIMBOT + DESPLEGABLE FLOTANTE EN SCREEN GUI
     -- ==========================================
     local AimbotFrame, AimbotLabel = CreateToggle(AimContainer, "Aimbot", "Aimbot")
-    AimbotLabel.Size = UDim2.new(0, 65, 1, 0)
-    AimbotFrame.ZIndex = 5
+    AimbotLabel.Size = UDim2.new(0, 60, 1, 0)
 
     local DropdownBtn = Instance.new("TextButton")
-    DropdownBtn.Size = UDim2.new(0, 130, 0, 26)
+    DropdownBtn.Size = UDim2.new(0, 125, 0, 26)
     DropdownBtn.Position = UDim2.new(0, 82, 0.5, -13)
     DropdownBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
     DropdownBtn.TextColor3 = Color3.fromRGB(235, 130, 255)
     DropdownBtn.Text = "Click Derecho  ▼"
     DropdownBtn.TextSize = 11
     DropdownBtn.Font = Enum.Font.GothamBold
-    DropdownBtn.ZIndex = 6
     DropdownBtn.Parent = AimbotFrame
 
     local DBCorner = Instance.new("UICorner")
@@ -772,14 +772,14 @@ local function OpenMainPanel()
     DBStroke.Thickness = 1
     DBStroke.Parent = DropdownBtn
 
+    -- Menú flotante fuera del contenedor con scroll para que nunca se oculte
     local DropdownBox = Instance.new("Frame")
-    DropdownBox.Size = UDim2.new(0, 130, 0, 56)
-    DropdownBox.Position = UDim2.new(0, 82, 1, 4)
+    DropdownBox.Size = UDim2.new(0, 125, 0, 56)
     DropdownBox.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
     DropdownBox.BorderSizePixel = 0
     DropdownBox.Visible = false
-    DropdownBox.ZIndex = 20
-    DropdownBox.Parent = AimbotFrame
+    DropdownBox.ZIndex = 999
+    DropdownBox.Parent = ScreenGui
 
     local DBoxCorner = Instance.new("UICorner")
     DBoxCorner.CornerRadius = UDim.new(0, 6)
@@ -798,7 +798,7 @@ local function OpenMainPanel()
     OptionRight.Text = "Click Derecho"
     OptionRight.TextSize = 11
     OptionRight.Font = Enum.Font.GothamBold
-    OptionRight.ZIndex = 21
+    OptionRight.ZIndex = 1000
     OptionRight.Parent = DropdownBox
 
     local ORCorner = Instance.new("UICorner")
@@ -813,12 +813,18 @@ local function OpenMainPanel()
     OptionLeft.Text = "Click Izquierdo"
     OptionLeft.TextSize = 11
     OptionLeft.Font = Enum.Font.Gotham
-    OptionLeft.ZIndex = 21
+    OptionLeft.ZIndex = 1000
     OptionLeft.Parent = DropdownBox
 
     local OLCorner = Instance.new("UICorner")
     OLCorner.CornerRadius = UDim.new(0, 4)
     OLCorner.Parent = OptionLeft
+
+    local function UpdateDropdownPosition()
+        local absPos = DropdownBtn.AbsolutePosition
+        local absSize = DropdownBtn.AbsoluteSize
+        DropdownBox.Position = UDim2.new(0, absPos.X, 0, absPos.Y + absSize.Y + 4)
+    end
 
     local function SetAimMouseChoice(choice)
         if choice == "Left" then
@@ -843,6 +849,9 @@ local function OpenMainPanel()
     end
 
     DropdownBtn.MouseButton1Click:Connect(function()
+        if not DropdownBox.Visible then
+            UpdateDropdownPosition()
+        end
         DropdownBox.Visible = not DropdownBox.Visible
         PlayBeep()
     end)

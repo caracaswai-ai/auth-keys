@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (Pitido Agudo al 150% en Todos los Apartados + Anti-Spam)
+-- 01Scripts | Panel 2 (Contador Dinámico Exacto según líneas marcadas)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -118,20 +118,20 @@ StatusMsg.Parent = LoginFrame
 local function OpenMainPanel()
     LoginGui:Destroy()
 
-    -- Control de tiempo para evitar sonidos duplicados simultáneos (Anti-Spam)
+    -- Control anti-spam para el pitido agudo al 150% de volumen (1.5)
     local lastBeepTick = 0
     local function PlayBeep()
         local currentTick = tick()
-        if currentTick - lastBeepTick < 0.08 then return end -- Evita pitidos encimados en un rango de 80ms
+        if currentTick - lastBeepTick < 0.08 then return end
         lastBeepTick = currentTick
 
         local sound = Instance.new("Sound")
         sound.SoundId = "rbxassetid://4590657391"
-        sound.Volume = 1.5 -- 150% de volumen
+        sound.Volume = 1.5
         sound.Parent = CoreGui
         
         local pitch = Instance.new("PitchShiftSoundEffect")
-        pitch.Octave = 2.8 -- Pitido más agudo
+        pitch.Octave = 2.8
         pitch.Parent = sound
         
         sound:Play()
@@ -484,63 +484,27 @@ local function OpenMainPanel()
     local Speed_Enabled = false
     local moveSpeed = 50
 
-    -- ESTRUCTURA CENTRALIZADA DE TOGGLES Y KEYBINDS (Pitido habilitado para todos)
+    -- ESTRUCTURA CENTRALIZADA DE TOGGLES Y KEYBINDS
     local togglesData = {
-        ESP = {
-            Enabled = false, 
-            Key = Enum.KeyCode.E, 
-            SetState = function(v) ESP_Enabled = v end
-        },
-        Lines = {
+        ESP = { Enabled = false, Key = Enum.KeyCode.E, SetState = function(v) ESP_Enabled = v end },
+        Lines = { 
             Enabled = false, 
             Key = Enum.KeyCode.L, 
             SetState = function(v) 
                 Lines_Enabled = v 
                 if not v then TopIndicatorFrame.Visible = false end 
-            end
+            end 
         },
-        Health = {
-            Enabled = false, 
-            Key = Enum.KeyCode.H, 
-            SetState = function(v) Health_Enabled = v end
-        },
-        Highlight = {
-            Enabled = false, 
-            Key = Enum.KeyCode.J, 
-            SetState = function(v) Highlight_Enabled = v end
-        },
+        Health = { Enabled = false, Key = Enum.KeyCode.H, SetState = function(v) Health_Enabled = v end },
+        Highlight = { Enabled = false, Key = Enum.KeyCode.J, SetState = function(v) Highlight_Enabled = v end },
         
-        Aimbot = {
-            Enabled = false, 
-            Key = Enum.KeyCode.Q, 
-            SetState = function(v) Aimbot_Enabled = v end
-        },
-        FOV = {
-            Enabled = false, 
-            Key = Enum.KeyCode.F, 
-            SetState = function(v) FOV_Enabled = v end
-        },
-        Paredes = {
-            Enabled = false, 
-            Key = Enum.KeyCode.X, 
-            SetState = function(v) wallCheck_Enabled = v end
-        },
+        Aimbot = { Enabled = false, Key = Enum.KeyCode.Q, SetState = function(v) Aimbot_Enabled = v end },
+        FOV = { Enabled = false, Key = Enum.KeyCode.F, SetState = function(v) FOV_Enabled = v end },
+        Paredes = { Enabled = false, Key = Enum.KeyCode.X, SetState = function(v) wallCheck_Enabled = v end },
 
-        Fly = {
-            Enabled = false, 
-            Key = Enum.KeyCode.R, 
-            SetState = function(v) Fly_Enabled = v end
-        },
-        Noclip = {
-            Enabled = false, 
-            Key = Enum.KeyCode.N, 
-            SetState = function(v) Noclip_Enabled = v end
-        },
-        Speed = {
-            Enabled = false, 
-            Key = Enum.KeyCode.Z, 
-            SetState = function(v) Speed_Enabled = v end
-        },
+        Fly = { Enabled = false, Key = Enum.KeyCode.R, SetState = function(v) Fly_Enabled = v end },
+        Noclip = { Enabled = false, Key = Enum.KeyCode.N, SetState = function(v) Noclip_Enabled = v end },
+        Speed = { Enabled = false, Key = Enum.KeyCode.Z, SetState = function(v) Speed_Enabled = v end },
     }
 
     local function UpdateToggleVisual(id, state)
@@ -557,8 +521,6 @@ local function OpenMainPanel()
             end
         end
         pcall(function() data.SetState(state) end)
-
-        -- Reproduce un único pitido general para cualquier función activada
         PlayBeep()
     end
 
@@ -584,7 +546,6 @@ local function OpenMainPanel()
         Label.TextXAlignment = Enum.TextXAlignment.Left
         Label.Parent = ToggleFrame
 
-        -- Botón de Tecla (Keybind)
         local KeybindBtn = Instance.new("TextButton")
         KeybindBtn.Size = UDim2.new(0, 55, 0, 24)
         KeybindBtn.Position = UDim2.new(1, -125, 0.5, -12)
@@ -624,7 +585,6 @@ local function OpenMainPanel()
             end
         end)
 
-        -- Interruptor visual
         local SwitchBg = Instance.new("TextButton")
         SwitchBg.Size = UDim2.new(0, 46, 0, 24)
         SwitchBg.Position = UDim2.new(1, -62, 0.5, -12)
@@ -710,11 +670,7 @@ local function OpenMainPanel()
         DragButton.Parent = BarBg
 
         local dragging = false
-
-        DragButton.MouseButton1Down:Connect(function()
-            dragging = true
-        end)
-
+        DragButton.MouseButton1Down:Connect(function() dragging = true end)
         UserInputService.InputEnded:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 dragging = false
@@ -963,9 +919,11 @@ local function OpenMainPanel()
             fovCircle.Visible = false
         end
 
-        -- LOGICA DE RENDERIZADO ESP / LINES / HEALTH / HIGHLIGHT (CON CAMBIO DE COLOR DINÁMICO)
+        -- LOGICA DE RENDERIZADO ESP / LINES / HEALTH / HIGHLIGHT
         if ESP_Enabled or Lines_Enabled or Health_Enabled or Highlight_Enabled then
             local activePlayers = {}
+            local linesMarkedCount = 0
+
             for _, player in ipairs(Players:GetPlayers()) do
                 if player ~= LocalPlayer and player.Character then
                     local targetChar = player.Character
@@ -1003,7 +961,7 @@ local function OpenMainPanel()
                                 end
                             end
 
-                            -- 2. ESP BOX (CUADRO)
+                            -- 2. ESP BOX
                             if ESP_Enabled then
                                 if not espDrawings[player].Box then
                                     local box = Drawing.new("Square")
@@ -1029,7 +987,7 @@ local function OpenMainPanel()
                                 end
                             end
 
-                            -- 3. LINES (LÍNEAS A JUGADORES)
+                            -- 3. LINES (Cuenta exclusivamente las líneas que están visibles/dibujándose hacia los jugadores)
                             if Lines_Enabled then
                                 if not espDrawings[player].Line then
                                     local line = Drawing.new("Line")
@@ -1044,6 +1002,9 @@ local function OpenMainPanel()
                                     espDrawings[player].Line.To = Vector2.new(pos.X, pos.Y)
                                     espDrawings[player].Line.Visible = true
                                     TopIndicatorFrame.Visible = true
+                                    
+                                    -- Suma +1 al contador solo si la línea se está mostrando en pantalla
+                                    linesMarkedCount = linesMarkedCount + 1
                                 else
                                     espDrawings[player].Line.Visible = false
                                 end
@@ -1102,6 +1063,9 @@ local function OpenMainPanel()
                 end
             end
 
+            -- Mostrar el número exacto de líneas marcadas en pantalla
+            CountLabel.Text = tostring(linesMarkedCount)
+
             for p, obj in pairs(espDrawings) do
                 if not activePlayers[p] then
                     if obj.Box then obj.Box:Remove() end
@@ -1114,6 +1078,8 @@ local function OpenMainPanel()
             end
         else
             clearESP()
+            TopIndicatorFrame.Visible = false
+            CountLabel.Text = "0"
         end
 
         local rightMouseDown = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)

@@ -5,5 +5,12 @@
     "allowedHWIDs": [],
     "usedBy": "LMB_Demente3",
     "expiresAt": 1794554330
+  },
+  "FREE-KEY-YLOK738U": {
+    "durationDays": 1,
+    "maxDevices": 1,
+    "allowedHWIDs": [],
+    "usedBy": "10s",
+    "expiresAt": 1794554727
   }
 }

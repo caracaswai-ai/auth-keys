@@ -1,1 +1,9 @@
-{}
+{
+    "FREE-KEY-J66AQ22P": {
+        "durationDays": 1,
+        "maxDevices": 1,
+        "allowedHWIDs": [],
+        "usedBy": "10s !crearkey 1 1 10s",
+        "expiresAt": 1794608612
+    }
+}

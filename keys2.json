@@ -1,1 +1,9 @@
-{}
+{
+  "FREE-KEY-3QIORVGF": {
+    "durationDays": 1,
+    "maxDevices": 1,
+    "allowedHWIDs": [],
+    "usedBy": "LMB_Demente3",
+    "expiresAt": 1794554330
+  }
+}

@@ -1,1 +1,9 @@
-{}
+{
+    "FREE-KEY-3H89GS44": {
+        "durationDays": 1,
+        "maxDevices": 1,
+        "allowedHWIDs": [],
+        "usedBy": "10s",
+        "expiresAt": 1794607851
+    }
+}

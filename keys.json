@@ -1,9 +1,1 @@
-{
-    "FREE-KEY-PYERZSCS": {
-        "durationDays": 1,
-        "maxDevices": 1,
-        "allowedHWIDs": [],
-        "usedBy": "10s",
-        "expiresAt": 1794607696
-    }
-}
+{}

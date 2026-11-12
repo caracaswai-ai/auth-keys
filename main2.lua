@@ -1,5 +1,5 @@
 -- ==========================================
--- 01Scripts | Panel 2 (ESP, Lines, Health Dinámica, Contador y Anti-Spam)
+-- 01Scripts | Panel 2 (Login con DisplayName y Panel Principal Personalizado)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -66,7 +66,8 @@ local LSub = Instance.new("TextLabel")
 LSub.Size = UDim2.new(1, -20, 0, 20)
 LSub.Position = UDim2.new(0, 15, 0, 45)
 LSub.BackgroundTransparency = 1
-LSub.Text = "Key System | 01Hub"
+-- AQUÍ REEMPLAZAMOS "Key System" POR EL NOMBRE DE VISUALIZACIÓN DEL USUARIO
+LSub.Text = LocalPlayer.DisplayName .. " | 01Hub"
 LSub.TextColor3 = Color3.fromRGB(120, 120, 135)
 LSub.TextSize = 11
 LSub.Font = Enum.Font.Gotham
@@ -207,22 +208,24 @@ local function OpenMainPanel()
     TopBar.BackgroundTransparency = 1
     TopBar.Parent = MainFrame
 
+    -- TÍTULO PRINCIPAL (01Scripts Hub)
     local TitleLabel = Instance.new("TextLabel")
-    TitleLabel.Size = UDim2.new(0, 300, 0, 20)
-    TitleLabel.Position = UDim2.new(0, 18, 0, 12)
+    TitleLabel.Size = UDim2.new(0, 400, 0, 20)
+    TitleLabel.Position = UDim2.new(0, 18, 0, 10)
     TitleLabel.BackgroundTransparency = 1
-    TitleLabel.Text = "01Scripts X 01Hub"
+    TitleLabel.Text = "01Scripts Hub"
     TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     TitleLabel.TextSize = 14
     TitleLabel.Font = Enum.Font.GothamBold
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
     TitleLabel.Parent = TopBar
 
+    -- SUBTÍTULO SECUNDARIO (Nombre de visualización │ Hub)
     local SubLabel = Instance.new("TextLabel")
-    SubLabel.Size = UDim2.new(0, 300, 0, 16)
-    SubLabel.Position = UDim2.new(0, 18, 0, 32)
+    SubLabel.Size = UDim2.new(0, 400, 0, 16)
+    SubLabel.Position = UDim2.new(0, 18, 0, 30)
     SubLabel.BackgroundTransparency = 1
-    SubLabel.Text = "Key System | 01Hub"
+    SubLabel.Text = LocalPlayer.DisplayName .. " │ Hub"
     SubLabel.TextColor3 = Color3.fromRGB(110, 110, 125)
     SubLabel.TextSize = 11
     SubLabel.Font = Enum.Font.Gotham
@@ -235,11 +238,12 @@ local function OpenMainPanel()
     ContentHolder.BackgroundTransparency = 1
     ContentHolder.Parent = MainFrame
 
+    -- BOTÓN DE CERRAR (X limpia)
     local CloseButton = Instance.new("TextButton")
     CloseButton.Size = UDim2.new(0, 30, 0, 30)
     CloseButton.Position = UDim2.new(1, -40, 0.5, -15)
     CloseButton.BackgroundTransparency = 1
-    CloseButton.Text = "✕"
+    CloseButton.Text = "X"
     CloseButton.TextColor3 = Color3.fromRGB(255, 60, 60)
     CloseButton.TextSize = 16
     CloseButton.Font = Enum.Font.GothamBold
@@ -249,6 +253,7 @@ local function OpenMainPanel()
         ScreenGui:Destroy()
     end)
 
+    -- BOTÓN DE MINIMIZAR (-) A LA IZQUIERDA DE LA X
     local MinimizeButton = Instance.new("TextButton")
     MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
     MinimizeButton.Position = UDim2.new(1, -75, 0.5, -15)
@@ -296,7 +301,7 @@ local function OpenMainPanel()
     AimContainer.Size = UDim2.new(1, -230, 1, -20)
     AimContainer.Position = UDim2.new(0, 220, 0, 10)
     AimContainer.BackgroundTransparency = 1
-    AimContainer.CanvasSize = UDim2.new(0, 0, 0, 620)
+    AimContainer.CanvasSize = UDim2.new(0, 0, 0, 650)
     AimContainer.ScrollBarThickness = 3
     AimContainer.Visible = false
     AimContainer.Parent = ContentHolder
@@ -1014,7 +1019,7 @@ local function OpenMainPanel()
                                 end
                             end
 
-                            -- 4. HEALTH BAR CON CAMBIO DE COLOR DINÁMICO (VERDE -> AMARILLO -> ROJO)
+                            -- 4. HEALTH BAR
                             if Health_Enabled then
                                 if not espDrawings[player].HealthBar then
                                     local hbBg = Drawing.new("Square")
@@ -1034,7 +1039,6 @@ local function OpenMainPanel()
                                     local size = Vector2.new(2000 / dist, 4000 / dist)
                                     local healthPercent = math.clamp(targetHumanoid.Health / targetHumanoid.MaxHealth, 0, 1)
                                     
-                                    -- Cambia dinámicamente de color igual que la barra de salud de Roblox (Verde a Amarillo y de Amarillo a Rojo)
                                     espDrawings[player].HealthBar.Color = Color3.fromHSV(healthPercent * 0.33, 1, 1)
                                     
                                     espDrawings[player].HealthBg.Size = Vector2.new(3, size.Y)
@@ -1058,7 +1062,6 @@ local function OpenMainPanel()
                                     espDrawings[player].HealthBg = nil
                                 end
                             end
-
                         end
                     end
                 end

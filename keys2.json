@@ -12,5 +12,12 @@
     "allowedHWIDs": [],
     "usedBy": "10s",
     "expiresAt": 1794554727
+  },
+  "FREE-KEY-IC8HGK6X": {
+    "durationDays": 1,
+    "maxDevices": 1,
+    "allowedHWIDs": [],
+    "usedBy": "10s",
+    "expiresAt": 1794598335
   }
 }

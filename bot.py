@@ -31,7 +31,8 @@ CANAL_LOGS_PANEL2 = 1568734305721516032    # Canal viejo 2 para !publikey2
 # Agrega o quita aquí los IDs de Discord de las personas que pueden usar los comandos.
 USUARIOS_PERMITIDOS = [
     1324153125489213450,  # Reemplaza con tu ID real o el de tus administradores
-    # 987654321098765432   # Puedes agregar más líneas separadas por comas
+    1258934999986602090,
+    1201604229836591275,  # Puedes agregar más líneas separadas por comas
 ]
 
 def solo_permitidos():

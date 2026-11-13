@@ -1,96 +1,47 @@
 -- ==========================================
--- 01Scripts | Panel 2 (Desplegable Flotante sobre la Interfaz)
+-- 01Scripts | Panel 2 (Validación Estricta de Usuario y Expiración)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
+local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
-local localPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
 
--- ==========================================
--- FUNCIÓN DE VERIFICACIÓN DE KEYS
--- ==========================================
-local function verificarKeyEnRoblox(inputKey, esPanelDos)
-    -- Selecciona el archivo correcto según el panel (keys.json o keys2.json)
-    local archivo = esPanelDos and "keys2.json" or "keys.json"
-    
-    -- Añadimos ?t= para evitar la caché de GitHub y leer los cambios al instante
-    local url = "https://raw.githubusercontent.com/caracaswai-ai/auth-keys/main/" .. archivo .."?t=" .. tostring(os.time())
-    
-    local success, response = pcall(function()
-        return game:HttpGet(url)
-    end)
-    
-    if not success then
-        return false, "Error de conexión con GitHub."
-    end
-    
-    -- Decodificamos el JSON que sube el bot de Discord
-    local successDecode, data = pcall(function()
+local GITHUB_KEYS_URL = "https://raw.githubusercontent.com/caracaswai-ai/auth-keys/main/keys2.json"
+local CONFIG_FILE_NAME = "01Scripts_Config.json"
+
+local function verifyKey(inputKey)
+    local success, result = pcall(function()
+        local response = game:HttpGet(GITHUB_KEYS_URL .. "?nocache=" .. tick())
         return HttpService:JSONDecode(response)
     end)
     
-    if not successDecode or not data then
-        return false, "Error al leer la base de datos."
-    end
-    
-    local keyData = data[inputKey]
-    
-    -- 1. Verificar si la key existe en el JSON
-    if not keyData then
-        return false, "Key inválida o no encontrada."
-    end
-    
-    -- 2. Verificar si la key ya expiró (comparando el tiempo actual)
-    if keyData.expiresAt > 0 and os.time() > keyData.expiresAt then
-        return false, "Esta Key ha expirado."
-    end
-    
-    -- 3. Verificar si está asignada a un usuario específico
-    local assignedUser = keyData.usedBy
-    if assignedUser and assignedUser ~= "" and assignedUser ~= "Público" then
-        if assignedUser:lower() ~= localPlayer.Name:lower() then
-            return false, "Esta key pertenece a otro usuario (" .. assignedUser .. ")."
+    if success and type(result) == "table" then
+        local keyData = result[inputKey]
+        if keyData then
+            -- 1. Verificar si la key ha expirado
+            if keyData.expiresAt and keyData.expiresAt > 0 and os.time() > keyData.expiresAt then
+                return false, "La Key ha expirado."
+            end
+
+            -- 2. Verificar si es exclusiva para un usuario específico
+            if keyData.usedBy and keyData.usedBy ~= "" then
+                local allowedUser = keyData.usedBy:lower()
+                local currentName = LocalPlayer.Name:lower()
+                local currentDisplayName = LocalPlayer.DisplayName:lower()
+                
+                if currentName ~= allowedUser and currentDisplayName ~= allowedUser then
+                    return false, "Esta Key pertenece a otro usuario."
+                end
+            end
+
+            return true, "¡Key Válida!"
         end
     end
-    
-    -- ¡Todo correcto! La key es válida
-    return true, "¡Key verificada con éxito!"
-end
-
--- ==========================================
--- EJEMPLO DE CÓMO CONECTARLO CON TU BOTÓN EN LA UI
--- ==========================================
--- (Asegúrate de cambiar 'miTextBox' y 'miBoton' por los nombres reales de tus elementos en la UI)
-local playerGui = localPlayer:WaitForChild("PlayerGui")
-local pantallaVerificacion = playerGui:FindFirstChild("VerificacionGui") -- Cambia esto por el nombre de tu ScreenGui
-
-if pantallaVerificacion then
-    local textBox = pantallaVerificacion:FindFirstChild("TextBox", true) -- Donde el usuario escribe la key
-    local botonVerificar = pantallaVerificacion:FindFirstChild("TextButton", true) -- Tu botón de verificar
-    local mensajeFeedback = pantallaVerificacion:FindFirstChild("TextLabel", true) -- Donde dice "Key inválida..."
-
-    if botonVerificar and textBox then
-        botonVerificar.MouseButton1Click:Connect(function()
-            local keyEscrita = textBox.Text
-            
-            -- Cambia a 'true' si este script corresponde a keys2.json, o 'false' si es para keys.json
-            local esPanelDos = false 
-            
-            local valido, mensaje = verificarKeyEnRoblox(keyEscrita, esPanelDos)
-            
-            if mensajeFeedback then
-                mensajeFeedback.Text = mensaje
-            end
-            
-            if valido then
-                print("Acceso concedido al script principal.")
-                -- AQUÍ PONES EL CÓDIGO DE TU SCRIPT PRINCIPAL QUE SE EJECUTA AL VERIFICAR
-                -- pantallaVerificacion.Enabled = false -- Cierra la UI
-            else
-                warn("Falló la verificación: " .. mensaje)
-            end
-        end)
-    end
+    return false, "Key inválida o no encontrada."
 end
 
 -- ==========================================
@@ -98,7 +49,6 @@ end
 -- ==========================================
 local LoginGui = Instance.new("ScreenGui")
 LoginGui.Name = "01Scripts_Panel2_Login"
-LoginGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 LoginGui.Parent = CoreGui
 LoginGui.ResetOnSpawn = false
 
@@ -208,7 +158,6 @@ local function OpenMainPanel()
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "01Scripts_Panel2_Main"
-    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     ScreenGui.Parent = CoreGui
     ScreenGui.ResetOnSpawn = false
     ScreenGui.IgnoreGuiInset = true
@@ -362,7 +311,7 @@ local function OpenMainPanel()
     AimContainer.Size = UDim2.new(1, -230, 1, -20)
     AimContainer.Position = UDim2.new(0, 220, 0, 10)
     AimContainer.BackgroundTransparency = 1
-    AimContainer.CanvasSize = UDim2.new(0, 0, 0, 700)
+    AimContainer.CanvasSize = UDim2.new(0, 0, 0, 650)
     AimContainer.ScrollBarThickness = 3
     AimContainer.Visible = false
     AimContainer.Parent = ContentHolder
@@ -535,7 +484,6 @@ local function OpenMainPanel()
     local espMaxDistance = 5000
 
     local Aimbot_Enabled = false
-    local aimbotMouseButton = Enum.UserInputType.MouseButton2
     local aimbotSmoothness = 100
     local FOV_Enabled = false
     local fovSize = 150
@@ -680,8 +628,6 @@ local function OpenMainPanel()
                 UpdateToggleVisual(id, not data.Enabled)
             end
         end)
-
-        return ToggleFrame, Label
     end
 
     local function CreateSlider(parentContainer, name, min, max, default, callback)
@@ -797,127 +743,7 @@ local function OpenMainPanel()
     CreateToggle(VisualContainer, "Highlight", "Highlight")
     CreateSlider(VisualContainer, "Distancia Máxima ESP", 100, 10000, 5000, function(val) espMaxDistance = val end)
 
-    -- ==========================================
-    -- AIMBOT + DESPLEGABLE FLOTANTE EN SCREEN GUI
-    -- ==========================================
-    local AimbotFrame, AimbotLabel = CreateToggle(AimContainer, "Aimbot", "Aimbot")
-    AimbotLabel.Size = UDim2.new(0, 60, 1, 0)
-
-    local DropdownBtn = Instance.new("TextButton")
-    DropdownBtn.Size = UDim2.new(0, 125, 0, 26)
-    DropdownBtn.Position = UDim2.new(0, 82, 0.5, -13)
-    DropdownBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
-    DropdownBtn.TextColor3 = Color3.fromRGB(235, 130, 255)
-    DropdownBtn.Text = "Click Derecho  ▼"
-    DropdownBtn.TextSize = 11
-    DropdownBtn.Font = Enum.Font.GothamBold
-    DropdownBtn.Parent = AimbotFrame
-
-    local DBCorner = Instance.new("UICorner")
-    DBCorner.CornerRadius = UDim.new(0, 6)
-    DBCorner.Parent = DropdownBtn
-
-    local DBStroke = Instance.new("UIStroke")
-    DBStroke.Color = Color3.fromRGB(72, 27, 117)
-    DBStroke.Thickness = 1
-    DBStroke.Parent = DropdownBtn
-
-    -- Menú flotante fuera del contenedor con scroll para que nunca se oculte
-    local DropdownBox = Instance.new("Frame")
-    DropdownBox.Size = UDim2.new(0, 125, 0, 56)
-    DropdownBox.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
-    DropdownBox.BorderSizePixel = 0
-    DropdownBox.Visible = false
-    DropdownBox.ZIndex = 999
-    DropdownBox.Parent = ScreenGui
-
-    local DBoxCorner = Instance.new("UICorner")
-    DBoxCorner.CornerRadius = UDim.new(0, 6)
-    DBoxCorner.Parent = DropdownBox
-
-    local DBoxStroke = Instance.new("UIStroke")
-    DBoxStroke.Color = Color3.fromRGB(162, 57, 239)
-    DBoxStroke.Thickness = 1
-    DBoxStroke.Parent = DropdownBox
-
-    local OptionRight = Instance.new("TextButton")
-    OptionRight.Size = UDim2.new(1, -6, 0, 24)
-    OptionRight.Position = UDim2.new(0, 3, 0, 3)
-    OptionRight.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
-    OptionRight.TextColor3 = Color3.fromRGB(255, 255, 255)
-    OptionRight.Text = "Click Derecho"
-    OptionRight.TextSize = 11
-    OptionRight.Font = Enum.Font.GothamBold
-    OptionRight.ZIndex = 1000
-    OptionRight.Parent = DropdownBox
-
-    local ORCorner = Instance.new("UICorner")
-    ORCorner.CornerRadius = UDim.new(0, 4)
-    ORCorner.Parent = OptionRight
-
-    local OptionLeft = Instance.new("TextButton")
-    OptionLeft.Size = UDim2.new(1, -6, 0, 24)
-    OptionLeft.Position = UDim2.new(0, 3, 0, 29)
-    OptionLeft.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
-    OptionLeft.TextColor3 = Color3.fromRGB(200, 200, 215)
-    OptionLeft.Text = "Click Izquierdo"
-    OptionLeft.TextSize = 11
-    OptionLeft.Font = Enum.Font.Gotham
-    OptionLeft.ZIndex = 1000
-    OptionLeft.Parent = DropdownBox
-
-    local OLCorner = Instance.new("UICorner")
-    OLCorner.CornerRadius = UDim.new(0, 4)
-    OLCorner.Parent = OptionLeft
-
-    local function UpdateDropdownPosition()
-        local absPos = DropdownBtn.AbsolutePosition
-        local absSize = DropdownBtn.AbsoluteSize
-        DropdownBox.Position = UDim2.new(0, absPos.X, 0, absPos.Y + absSize.Y + 4)
-    end
-
-    local function SetAimMouseChoice(choice)
-        if choice == "Left" then
-            aimbotMouseButton = Enum.UserInputType.MouseButton1
-            DropdownBtn.Text = "Click Izquierdo  ▼"
-            OptionLeft.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
-            OptionLeft.TextColor3 = Color3.fromRGB(255, 255, 255)
-            OptionLeft.Font = Enum.Font.GothamBold
-            OptionRight.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
-            OptionRight.TextColor3 = Color3.fromRGB(200, 200, 215)
-            OptionRight.Font = Enum.Font.Gotham
-        else
-            aimbotMouseButton = Enum.UserInputType.MouseButton2
-            DropdownBtn.Text = "Click Derecho  ▼"
-            OptionRight.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
-            OptionRight.TextColor3 = Color3.fromRGB(255, 255, 255)
-            OptionRight.Font = Enum.Font.GothamBold
-            OptionLeft.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
-            OptionLeft.TextColor3 = Color3.fromRGB(200, 200, 215)
-            OptionLeft.Font = Enum.Font.Gotham
-        end
-    end
-
-    DropdownBtn.MouseButton1Click:Connect(function()
-        if not DropdownBox.Visible then
-            UpdateDropdownPosition()
-        end
-        DropdownBox.Visible = not DropdownBox.Visible
-        PlayBeep()
-    end)
-
-    OptionRight.MouseButton1Click:Connect(function()
-        SetAimMouseChoice("Right")
-        DropdownBox.Visible = false
-        PlayBeep()
-    end)
-
-    OptionLeft.MouseButton1Click:Connect(function()
-        SetAimMouseChoice("Left")
-        DropdownBox.Visible = false
-        PlayBeep()
-    end)
-
+    CreateToggle(AimContainer, "Aimbot", "Aimbot")
     CreateSlider(AimContainer, "Suavidad", 10, 100, 100, function(val) aimbotSmoothness = val end)
     CreateToggle(AimContainer, "FOV", "FOV")
     CreateSlider(AimContainer, "Tamaño FOV", 50, 500, 150, function(val) fovSize = val end)
@@ -934,7 +760,6 @@ local function OpenMainPanel()
     CreateButton(ConfigContainer, "Save Config", function()
         local configData = {
             Toggles = {},
-            AimMouse = (aimbotMouseButton == Enum.UserInputType.MouseButton1) and "Left" or "Right",
             EspMaxDist = espMaxDistance,
             Smoothness = aimbotSmoothness,
             FovSize = fovSize,
@@ -977,9 +802,6 @@ local function OpenMainPanel()
                             end
                         end
                     end
-                    if decoded.AimMouse then
-                        SetAimMouseChoice(decoded.AimMouse)
-                    end
                     espMaxDistance = decoded.EspMaxDist or 5000
                     aimbotSmoothness = decoded.Smoothness or 100
                     fovSize = decoded.FovSize or 150
@@ -996,7 +818,6 @@ local function OpenMainPanel()
         for id, data in pairs(togglesData) do
             UpdateToggleVisual(id, false)
         end
-        SetAimMouseChoice("Right")
         espMaxDistance = 5000
         aimbotSmoothness = 100
         fovSize = 150
@@ -1264,8 +1085,8 @@ local function OpenMainPanel()
             CountLabel.Text = "0"
         end
 
-        local mouseTriggerDown = UserInputService:IsMouseButtonPressed(aimbotMouseButton)
-        if Aimbot_Enabled and mouseTriggerDown then
+        local rightMouseDown = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
+        if Aimbot_Enabled and rightMouseDown then
             local closestTarget = nil
             local shortestDistance = fovSize
 

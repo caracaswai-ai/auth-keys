@@ -1,16 +1,9 @@
 {
-    "FREE-KEY-J66AQ22P": {
+    "FREE-KEY-52NQV70N": {
         "durationDays": 1,
         "maxDevices": 1,
         "allowedHWIDs": [],
-        "usedBy": "10s !crearkey 1 1 10s",
-        "expiresAt": 1794608612
-    },
-    "FREE-KEY-EC118HP4": {
-        "durationDays": 1,
-        "maxDevices": 1,
-        "allowedHWIDs": [],
-        "usedBy": "LMB_Demente3",
-        "expiresAt": 1794608683
+        "usedBy": "TS_MTS6",
+        "expiresAt": 1794630025
     }
 }

@@ -1,1 +1,9 @@
-{}
+{
+    "VIP-KEY-8N527C0C": {
+        "durationDays": 500,
+        "maxDevices": 1,
+        "allowedHWIDs": [],
+        "usedBy": "TS_MTS6",
+        "expiresAt": 1837745998
+    }
+}

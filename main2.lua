@@ -3,44 +3,94 @@
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
-local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
+local localPlayer = Players.LocalPlayer
 
-local GITHUB_KEYS_URL = "https://raw.githubusercontent.com/caracaswai-ai/auth-keys/main/keys2.json"
-local CONFIG_FILE_NAME = "01Scripts_Config.json"
-
-local function verifyKey(inputKey)
-    local success, result = pcall(function()
-        local cacheBuster = tostring(math.random(100000, 999999))
-        local response = game:HttpGet(GITHUB_KEYS_URL .. "?nc=" .. cacheBuster .. "_" .. tick())
+-- ==========================================
+-- FUNCIÓN DE VERIFICACIÓN DE KEYS
+-- ==========================================
+local function verificarKeyEnRoblox(inputKey, esPanelDos)
+    -- Selecciona el archivo correcto según el panel (keys.json o keys2.json)
+    local archivo = esPanelDos and "keys2.json" or "keys.json"
+    
+    -- Añadimos ?t= para evitar la caché de GitHub y leer los cambios al instante
+    local url = "https://raw.githubusercontent.com/caracaswai-ai/auth-keys/main/" .. archivo .."?t=" .. tostring(os.time())
+    
+    local success, response = pcall(function()
+        return game:HttpGet(url)
+    end)
+    
+    if not success then
+        return false, "Error de conexión con GitHub."
+    end
+    
+    -- Decodificamos el JSON que sube el bot de Discord
+    local successDecode, data = pcall(function()
         return HttpService:JSONDecode(response)
     end)
     
-    if success and type(result) == "table" then
-        local keyData = result[inputKey]
-        if keyData then
-            if keyData.expiresAt and keyData.expiresAt > 0 and os.time() > keyData.expiresAt then
-                return false, "La Key ha expirado."
-            end
-
-            if keyData.usedBy and keyData.usedBy ~= "" then
-                local allowedUser = keyData.usedBy:lower():gsub("%s+", "")
-                local currentName = LocalPlayer.Name:lower():gsub("%s+", "")
-                local currentDisplayName = LocalPlayer.DisplayName:lower():gsub("%s+", "")
-                
-                if currentName ~= allowedUser and currentDisplayName ~= allowedUser then
-                    return false, "Esta Key pertenece a otro usuario."
-                end
-            end
-
-            return true, "¡Key Válida!"
+    if not successDecode or not data then
+        return false, "Error al leer la base de datos."
+    end
+    
+    local keyData = data[inputKey]
+    
+    -- 1. Verificar si la key existe en el JSON
+    if not keyData then
+        return false, "Key inválida o no encontrada."
+    end
+    
+    -- 2. Verificar si la key ya expiró (comparando el tiempo actual)
+    if keyData.expiresAt > 0 and os.time() > keyData.expiresAt then
+        return false, "Esta Key ha expirado."
+    end
+    
+    -- 3. Verificar si está asignada a un usuario específico
+    local assignedUser = keyData.usedBy
+    if assignedUser and assignedUser ~= "" and assignedUser ~= "Público" then
+        if assignedUser:lower() ~= localPlayer.Name:lower() then
+            return false, "Esta key pertenece a otro usuario (" .. assignedUser .. ")."
         end
     end
-    return false, "Key inválida o no encontrada."
+    
+    -- ¡Todo correcto! La key es válida
+    return true, "¡Key verificada con éxito!"
+end
+
+-- ==========================================
+-- EJEMPLO DE CÓMO CONECTARLO CON TU BOTÓN EN LA UI
+-- ==========================================
+-- (Asegúrate de cambiar 'miTextBox' y 'miBoton' por los nombres reales de tus elementos en la UI)
+local playerGui = localPlayer:WaitForChild("PlayerGui")
+local pantallaVerificacion = playerGui:FindFirstChild("VerificacionGui") -- Cambia esto por el nombre de tu ScreenGui
+
+if pantallaVerificacion then
+    local textBox = pantallaVerificacion:FindFirstChild("TextBox", true) -- Donde el usuario escribe la key
+    local botonVerificar = pantallaVerificacion:FindFirstChild("TextButton", true) -- Tu botón de verificar
+    local mensajeFeedback = pantallaVerificacion:FindFirstChild("TextLabel", true) -- Donde dice "Key inválida..."
+
+    if botonVerificar and textBox then
+        botonVerificar.MouseButton1Click:Connect(function()
+            local keyEscrita = textBox.Text
+            
+            -- Cambia a 'true' si este script corresponde a keys2.json, o 'false' si es para keys.json
+            local esPanelDos = false 
+            
+            local valido, mensaje = verificarKeyEnRoblox(keyEscrita, esPanelDos)
+            
+            if mensajeFeedback then
+                mensajeFeedback.Text = mensaje
+            end
+            
+            if valido then
+                print("Acceso concedido al script principal.")
+                -- AQUÍ PONES EL CÓDIGO DE TU SCRIPT PRINCIPAL QUE SE EJECUTA AL VERIFICAR
+                -- pantallaVerificacion.Enabled = false -- Cierra la UI
+            else
+                warn("Falló la verificación: " .. mensaje)
+            end
+        end)
+    end
 end
 
 -- ==========================================

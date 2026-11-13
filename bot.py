@@ -25,6 +25,37 @@ CANAL_LOGS_PRIVADAS = 1568600141210845316  # Nuevo canal para !crearkey y !crear
 CANAL_LOGS_PANEL1 = 1568513187521888363    # Canal viejo 1 para !publikey
 CANAL_LOGS_PANEL2 = 1568734305721516032    # Canal viejo 2 para !publikey2
 
+# ==========================================
+# 🛡️ GESTIÓN DE USUARIOS PERMITIDOS
+# ==========================================
+# Agrega o quita aquí los IDs de Discord de las personas que pueden usar los comandos.
+USUARIOS_PERMITIDOS = [
+    1324153125489213450,  # Reemplaza con tu ID real o el de tus administradores
+    # 987654321098765432   # Puedes agregar más líneas separadas por comas
+]
+
+def solo_permitidos():
+    async def predicate(ctx):
+        # Verifica si el usuario está en la lista permitida o es el dueño del bot
+        if ctx.author.id in USUARIOS_PERMITIDOS or await bot.is_owner(ctx.author):
+            return True
+        
+        # Si no tiene permisos, envía el aviso y lo borra a los 3 segundos
+        try:
+            msg = await ctx.send(f"{ctx.author.mention}, no puedes usar comandos si no tienes permisos.")
+            await msg.delete(delay=3)
+        except Exception:
+            pass
+            
+        # Intenta borrar también el mensaje del comando enviado por el usuario no autorizado
+        try:
+            await ctx.message.delete(delay=3)
+        except Exception:
+            pass
+            
+        return False
+    return commands.check(predicate)
+
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -150,6 +181,7 @@ class KeyManagementView(discord.ui.View):
 # COMANDO: !crearkey
 # ==========================================
 @bot.command(name="crearkey")
+@solo_permitidos()
 async def crearkey(ctx, dias: int = 1, max_devices: int = 1, *, used_by: str = ""):
     try:
         await ctx.message.delete()
@@ -184,6 +216,7 @@ async def crearkey(ctx, dias: int = 1, max_devices: int = 1, *, used_by: str = "
 # COMANDO: !crearkey2
 # ==========================================
 @bot.command(name="crearkey2")
+@solo_permitidos()
 async def crearkey2(ctx, dias: int = 1, max_devices: int = 1, *, used_by: str = ""):
     try:
         await ctx.message.delete()
@@ -218,12 +251,12 @@ async def crearkey2(ctx, dias: int = 1, max_devices: int = 1, *, used_by: str = 
 # COMANDO: !publikey
 # ==========================================
 @bot.command(name="publikey")
+@solo_permitidos()
 async def publikey(ctx, dias: int = 1, max_devices: int = 10):
     try:
         await ctx.message.delete()
     except Exception:
         pass
-
     keys = load_keys(KEYS_FILE_1)
     key_code = "FREE-KEY-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
     expires_at = int(time.time()) + (dias * 86400) if dias > 0 else 0
@@ -252,6 +285,7 @@ async def publikey(ctx, dias: int = 1, max_devices: int = 10):
 # COMANDO: !publikey2
 # ==========================================
 @bot.command(name="publikey2")
+@solo_permitidos()
 async def publikey2(ctx, dias: int = 1, max_devices: int = 10):
     try:
         await ctx.message.delete()
@@ -286,6 +320,7 @@ async def publikey2(ctx, dias: int = 1, max_devices: int = 10):
 # COMANDO: !borrarkey
 # ==========================================
 @bot.command(name="borrarkey")
+@solo_permitidos()
 async def borrarkey(ctx, *, target_user: str):
     try:
         await ctx.message.delete()
@@ -308,6 +343,7 @@ async def borrarkey(ctx, *, target_user: str):
 # COMANDO: !borrarkey2
 # ==========================================
 @bot.command(name="borrarkey2")
+@solo_permitidos()
 async def borrarkey2(ctx, *, target_user: str):
     try:
         await ctx.message.delete()
@@ -330,6 +366,7 @@ async def borrarkey2(ctx, *, target_user: str):
 # COMANDO: !viewkeys
 # ==========================================
 @bot.command(name="viewkeys")
+@solo_permitidos()
 async def viewkeys(ctx):
     try:
         await ctx.message.delete()

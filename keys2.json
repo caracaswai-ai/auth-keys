@@ -12,5 +12,12 @@
         "allowedHWIDs": [],
         "usedBy": "10s",
         "expiresAt": 1794636019
+    },
+    "VIP-KEY-P5OT2WO6": {
+        "durationDays": 1,
+        "maxDevices": 1,
+        "allowedHWIDs": [],
+        "usedBy": "10S",
+        "expiresAt": 1794640295
     }
 }

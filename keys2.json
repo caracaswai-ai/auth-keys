@@ -5,5 +5,12 @@
         "allowedHWIDs": [],
         "usedBy": "TS_MTS6",
         "expiresAt": 1837745998
+    },
+    "VIP-KEY-XAGZ868F": {
+        "durationDays": 1,
+        "maxDevices": 1,
+        "allowedHWIDs": [],
+        "usedBy": "10s",
+        "expiresAt": 1794636019
     }
 }

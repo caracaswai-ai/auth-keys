@@ -5,5 +5,12 @@
         "allowedHWIDs": [],
         "usedBy": "TS_MTS6",
         "expiresAt": 1837745998
+    },
+    "VIP-KEY-A43NVR6U": {
+        "durationDays": 1,
+        "maxDevices": 1,
+        "allowedHWIDs": [],
+        "usedBy": "10s",
+        "expiresAt": 1794640989
     }
 }

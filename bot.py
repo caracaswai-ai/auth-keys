@@ -7,15 +7,11 @@ import random
 import string
 from github import Github
 
-intents = discord.Intents.default()
-intents.message_content = True
-
-bot = commands.Bot(command_prefix="!", intents=intents)
-
 # ==========================================
-# CONFIGURACIÓN DE GITHUB (REEMPLAZA CON TUS DATOS)
+# CONFIGURACIÓN DE TOKENS Y GITHUB (SEGURO)
 # ==========================================
-GITHUB_TOKEN = "GITHUB_TOKEN"
+DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 GITHUB_REPO_NAME = "caracaswai-ai/auth-keys"
 
 g = Github(GITHUB_TOKEN)
@@ -29,6 +25,11 @@ CANAL_LOGS_PRIVADAS = 1568600141210845316  # Nuevo canal para !crearkey y !crear
 CANAL_LOGS_PANEL1 = 1568513187521888363    # Canal viejo 1 para !publikey
 CANAL_LOGS_PANEL2 = 1568734305721516032    # Canal viejo 2 para !publikey2
 
+intents = discord.Intents.default()
+intents.message_content = True
+
+bot = commands.Bot(command_prefix="!", intents=intents)
+
 def load_keys(filename):
     if not os.path.exists(filename):
         return {}
@@ -39,11 +40,11 @@ def load_keys(filename):
         return {}
 
 def save_and_sync_keys(filename, data):
-    # 1. Guardar localmente en VS Code
+    # 1. Guardar localmente
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
     
-    # 2. Subir inmediatamente al archivo exacto en GitHub
+    # 2. Subir inmediatamente a GitHub
     try:
         file_content = json.dumps(data, indent=4)
         contents = repo.get_contents(filename)
@@ -58,7 +59,7 @@ def save_and_sync_keys(filename, data):
         print(f"❌ [ERROR GITHUB] No se pudo subir {filename}: {e}")
 
 # ==========================================
-# TAREA AUTOMÁTICA: Expira y sincroniza ambos archivos cada 60s
+# TAREA AUTOMÁTICA: Expira y sincroniza cada 60s
 # ==========================================
 @tasks.loop(seconds=60)
 async def auto_expire_keys():
@@ -146,8 +147,7 @@ class KeyManagementView(discord.ui.View):
         await interaction.message.edit(view=self)
 
 # ==========================================
-# COMANDO: !crearkey (Privada -> keys.json | Log al canal nuevo)
-# Uso: !crearkey [dias] [max_dispositivos] [usuario]
+# COMANDO: !crearkey
 # ==========================================
 @bot.command(name="crearkey")
 async def crearkey(ctx, dias: int = 1, max_devices: int = 1, *, used_by: str = ""):
@@ -181,8 +181,7 @@ async def crearkey(ctx, dias: int = 1, max_devices: int = 1, *, used_by: str = "
         await canal_logs.send(embed=embed)
 
 # ==========================================
-# COMANDO: !crearkey2 (Privada -> keys2.json | Log al canal nuevo)
-# Uso: !crearkey2 [dias] [max_dispositivos] [usuario]
+# COMANDO: !crearkey2
 # ==========================================
 @bot.command(name="crearkey2")
 async def crearkey2(ctx, dias: int = 1, max_devices: int = 1, *, used_by: str = ""):
@@ -216,8 +215,7 @@ async def crearkey2(ctx, dias: int = 1, max_devices: int = 1, *, used_by: str = 
         await canal_logs.send(embed=embed)
 
 # ==========================================
-# COMANDO: !publikey (Pública -> keys.json | Log al canal viejo 1)
-# Uso: !publikey [dias] [limite_usuarios]
+# COMANDO: !publikey
 # ==========================================
 @bot.command(name="publikey")
 async def publikey(ctx, dias: int = 1, max_devices: int = 10):
@@ -251,8 +249,7 @@ async def publikey(ctx, dias: int = 1, max_devices: int = 10):
         await canal_logs.send(embed=embed)
 
 # ==========================================
-# COMANDO: !publikey2 (Pública -> keys2.json | Log al canal viejo 2)
-# Uso: !publikey2 [dias] [limite_usuarios]
+# COMANDO: !publikey2
 # ==========================================
 @bot.command(name="publikey2")
 async def publikey2(ctx, dias: int = 1, max_devices: int = 10):
@@ -286,7 +283,7 @@ async def publikey2(ctx, dias: int = 1, max_devices: int = 10):
         await canal_logs.send(embed=embed)
 
 # ==========================================
-# COMANDO: !borrarkey -> Borra de keys.json
+# COMANDO: !borrarkey
 # ==========================================
 @bot.command(name="borrarkey")
 async def borrarkey(ctx, *, target_user: str):
@@ -308,7 +305,7 @@ async def borrarkey(ctx, *, target_user: str):
     await ctx.send(f"🗑️ Se eliminaron **{borradas}** key(s) de `{target_user}` en `keys.json`.", delete_after=10)
 
 # ==========================================
-# COMANDO: !borrarkey2 -> Borra de keys2.json
+# COMANDO: !borrarkey2
 # ==========================================
 @bot.command(name="borrarkey2")
 async def borrarkey2(ctx, *, target_user: str):
@@ -376,4 +373,8 @@ async def viewkeys(ctx):
     except Exception as e:
         print(f"Error al enviar viewkeys: {e}")
 
-bot.run("DISCORD_TOKEN")
+# ==========================================
+# ARRANQUE LIMPIO DEL BOT
+# ==========================================
+if __name__ == "__main__":
+    bot.run(DISCORD_TOKEN)

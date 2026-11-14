@@ -1,5 +1,8 @@
+-- NOTA: el script original usa APIs no estándar de Roblox Studio como Drawing.new,
+-- game:HttpGet, writefile/readfile y CoreGui. Requiere un entorno compatible.
+
 -- ==========================================
--- 01Scripts | Panel 2 (Desplegable Flotante sobre la Interfaz)
+-- 01Scripts | Zenith Rojo (basado en el Panel 2 original)
 -- ==========================================
 
 local HttpService = game:GetService("HttpService")
@@ -12,6 +15,9 @@ local Camera = workspace.CurrentCamera
 
 local GITHUB_KEYS_URL = "https://raw.githubusercontent.com/caracaswai-ai/auth-keys/main/keys2.json"
 local CONFIG_FILE_NAME = "01Scripts_Config.json"
+
+-- Sustituye 0000000000 por el ID de tu imagen 01Scripts subida a Roblox.
+local BACKGROUND_IMAGE_ID = "rbxassetid://0000000000"
 
 local function verifyKey(inputKey)
     local success, result = pcall(function()
@@ -55,7 +61,7 @@ LoginGui.ResetOnSpawn = false
 local LoginFrame = Instance.new("Frame")
 LoginFrame.Size = UDim2.new(0, 380, 0, 220)
 LoginFrame.Position = UDim2.new(0.5, -190, 0.5, -110)
-LoginFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 19)
+LoginFrame.BackgroundColor3 = Color3.fromRGB(8, 8, 10)
 LoginFrame.BorderSizePixel = 0
 LoginFrame.Parent = LoginGui
 
@@ -64,7 +70,7 @@ LCorner.CornerRadius = UDim.new(0, 8)
 LCorner.Parent = LoginFrame
 
 local LStroke = Instance.new("UIStroke")
-LStroke.Color = Color3.fromRGB(72, 27, 117)
+LStroke.Color = Color3.fromRGB(115, 20, 30)
 LStroke.Thickness = 1
 LStroke.Parent = LoginFrame
 
@@ -110,7 +116,7 @@ KICorner.Parent = KeyInput
 local VerifyButton = Instance.new("TextButton")
 VerifyButton.Size = UDim2.new(1, -30, 0, 38)
 VerifyButton.Position = UDim2.new(0, 15, 0, 135)
-VerifyButton.BackgroundColor3 = Color3.fromRGB(162, 57, 239)
+VerifyButton.BackgroundColor3 = Color3.fromRGB(220, 35, 48)
 VerifyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 VerifyButton.Text = "Verificar Key"
 VerifyButton.TextSize = 13
@@ -167,7 +173,7 @@ local function OpenMainPanel()
     TopIndicatorFrame.Name = "TopIndicatorFrame"
     TopIndicatorFrame.Size = UDim2.new(0, 90, 0, 26)
     TopIndicatorFrame.Position = UDim2.new(0.5, -45, 0, 10)
-    TopIndicatorFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+    TopIndicatorFrame.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
     TopIndicatorFrame.BorderSizePixel = 0
     TopIndicatorFrame.Visible = false
     TopIndicatorFrame.Parent = ScreenGui
@@ -177,7 +183,7 @@ local function OpenMainPanel()
     TopIndCorner.Parent = TopIndicatorFrame
 
     local TopIndStroke = Instance.new("UIStroke")
-    TopIndStroke.Color = Color3.fromRGB(72, 27, 117)
+    TopIndStroke.Color = Color3.fromRGB(115, 20, 30)
     TopIndStroke.Thickness = 1
     TopIndStroke.Parent = TopIndicatorFrame
 
@@ -197,25 +203,37 @@ local function OpenMainPanel()
     CountLabel.Text = "0"
     CountLabel.Font = Enum.Font.GothamBold
     CountLabel.TextSize = 12
-    CountLabel.TextColor3 = Color3.fromRGB(235, 130, 255)
+    CountLabel.TextColor3 = Color3.fromRGB(255, 92, 102)
     CountLabel.TextXAlignment = Enum.TextXAlignment.Left
     CountLabel.Parent = TopIndicatorFrame
 
     local MainFrame = Instance.new("Frame")
     MainFrame.Size = UDim2.new(0, 720, 0, 460)
     MainFrame.Position = UDim2.new(0.5, -360, 0.5, -230)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 19)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(8, 8, 10)
     MainFrame.BorderSizePixel = 0
     MainFrame.Active = true
     MainFrame.Draggable = true
     MainFrame.Parent = ScreenGui
+
+    -- Imagen de fondo 01Scripts (coloca aquí el ID de tu imagen de Roblox).
+    local BackgroundArt = Instance.new("ImageLabel")
+    BackgroundArt.Name = "01ScriptsBackground"
+    BackgroundArt.Size = UDim2.new(1, 0, 1, 0)
+    BackgroundArt.Position = UDim2.new(0, 0, 0, 0)
+    BackgroundArt.BackgroundTransparency = 1
+    BackgroundArt.Image = BACKGROUND_IMAGE_ID
+    BackgroundArt.ImageTransparency = 0.72
+    BackgroundArt.ScaleType = Enum.ScaleType.Crop
+    BackgroundArt.ZIndex = 0
+    BackgroundArt.Parent = MainFrame
 
     local MCorner = Instance.new("UICorner")
     MCorner.CornerRadius = UDim.new(0, 8)
     MCorner.Parent = MainFrame
 
     local MStroke = Instance.new("UIStroke")
-    MStroke.Color = Color3.fromRGB(72, 27, 117)
+    MStroke.Color = Color3.fromRGB(115, 20, 30)
     MStroke.Thickness = 1
     MStroke.Parent = MainFrame
 
@@ -361,8 +379,8 @@ local function OpenMainPanel()
     local VisualTab = Instance.new("TextButton")
     VisualTab.Size = UDim2.new(1, -24, 0, 42)
     VisualTab.Position = UDim2.new(0, 12, 0, 42)
-    VisualTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
-    VisualTab.TextColor3 = Color3.fromRGB(235, 130, 255)
+    VisualTab.BackgroundColor3 = Color3.fromRGB(58, 13, 18)
+    VisualTab.TextColor3 = Color3.fromRGB(255, 92, 102)
     VisualTab.Text = "    Visual"
     VisualTab.TextSize = 13
     VisualTab.Font = Enum.Font.GothamBold
@@ -376,7 +394,7 @@ local function OpenMainPanel()
     local AimTab = Instance.new("TextButton")
     AimTab.Size = UDim2.new(1, -24, 0, 42)
     AimTab.Position = UDim2.new(0, 12, 0, 92)
-    AimTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+    AimTab.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
     AimTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     AimTab.Text = "    Aim"
     AimTab.TextSize = 13
@@ -391,7 +409,7 @@ local function OpenMainPanel()
     local ExtraTab = Instance.new("TextButton")
     ExtraTab.Size = UDim2.new(1, -24, 0, 42)
     ExtraTab.Position = UDim2.new(0, 12, 0, 142)
-    ExtraTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+    ExtraTab.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
     ExtraTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     ExtraTab.Text = "    Extra"
     ExtraTab.TextSize = 13
@@ -406,7 +424,7 @@ local function OpenMainPanel()
     local ConfigTab = Instance.new("TextButton")
     ConfigTab.Size = UDim2.new(1, -24, 0, 42)
     ConfigTab.Position = UDim2.new(0, 12, 0, 192)
-    ConfigTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+    ConfigTab.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
     ConfigTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     ConfigTab.Text = "    CONFIG"
     ConfigTab.TextSize = 13
@@ -423,13 +441,13 @@ local function OpenMainPanel()
         AimContainer.Visible = false
         ExtraContainer.Visible = false
         ConfigContainer.Visible = false
-        VisualTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
-        VisualTab.TextColor3 = Color3.fromRGB(235, 130, 255)
-        AimTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        VisualTab.BackgroundColor3 = Color3.fromRGB(58, 13, 18)
+        VisualTab.TextColor3 = Color3.fromRGB(255, 92, 102)
+        AimTab.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
         AimTab.TextColor3 = Color3.fromRGB(150, 150, 165)
-        ExtraTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        ExtraTab.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
         ExtraTab.TextColor3 = Color3.fromRGB(150, 150, 165)
-        ConfigTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        ConfigTab.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
         ConfigTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     end)
 
@@ -438,13 +456,13 @@ local function OpenMainPanel()
         AimContainer.Visible = true
         ExtraContainer.Visible = false
         ConfigContainer.Visible = false
-        AimTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
-        AimTab.TextColor3 = Color3.fromRGB(235, 130, 255)
-        VisualTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        AimTab.BackgroundColor3 = Color3.fromRGB(58, 13, 18)
+        AimTab.TextColor3 = Color3.fromRGB(255, 92, 102)
+        VisualTab.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
         VisualTab.TextColor3 = Color3.fromRGB(150, 150, 165)
-        ExtraTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        ExtraTab.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
         ExtraTab.TextColor3 = Color3.fromRGB(150, 150, 165)
-        ConfigTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        ConfigTab.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
         ConfigTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     end)
 
@@ -453,13 +471,13 @@ local function OpenMainPanel()
         AimContainer.Visible = false
         ExtraContainer.Visible = true
         ConfigContainer.Visible = false
-        ExtraTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
-        ExtraTab.TextColor3 = Color3.fromRGB(235, 130, 255)
-        VisualTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        ExtraTab.BackgroundColor3 = Color3.fromRGB(58, 13, 18)
+        ExtraTab.TextColor3 = Color3.fromRGB(255, 92, 102)
+        VisualTab.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
         VisualTab.TextColor3 = Color3.fromRGB(150, 150, 165)
-        AimTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        AimTab.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
         AimTab.TextColor3 = Color3.fromRGB(150, 150, 165)
-        ConfigTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        ConfigTab.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
         ConfigTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     end)
 
@@ -468,13 +486,13 @@ local function OpenMainPanel()
         AimContainer.Visible = false
         ExtraContainer.Visible = false
         ConfigContainer.Visible = true
-        ConfigTab.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
-        ConfigTab.TextColor3 = Color3.fromRGB(235, 130, 255)
-        VisualTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        ConfigTab.BackgroundColor3 = Color3.fromRGB(58, 13, 18)
+        ConfigTab.TextColor3 = Color3.fromRGB(255, 92, 102)
+        VisualTab.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
         VisualTab.TextColor3 = Color3.fromRGB(150, 150, 165)
-        AimTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        AimTab.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
         AimTab.TextColor3 = Color3.fromRGB(150, 150, 165)
-        ExtraTab.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+        ExtraTab.BackgroundColor3 = Color3.fromRGB(14, 12, 14)
         ExtraTab.TextColor3 = Color3.fromRGB(150, 150, 165)
     end)
 
@@ -483,6 +501,8 @@ local function OpenMainPanel()
     local Health_Enabled = false
     local Highlight_Enabled = false
     local espMaxDistance = 5000
+    local lineThickness = 1
+    local lineOriginYOffset = 0
 
     local Aimbot_Enabled = false
     local aimbotMouseButton = Enum.UserInputType.MouseButton2
@@ -527,7 +547,7 @@ local function OpenMainPanel()
         data.Enabled = state
         if data.SwitchBg and data.Knob then
             if state then
-                data.SwitchBg.BackgroundColor3 = Color3.fromRGB(162, 57, 239)
+                data.SwitchBg.BackgroundColor3 = Color3.fromRGB(220, 35, 48)
                 data.Knob:TweenPosition(UDim2.new(1, -21, 0.5, -9), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true)
             else
                 data.SwitchBg.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
@@ -583,7 +603,7 @@ local function OpenMainPanel()
         KeybindBtn.MouseButton1Click:Connect(function()
             listening = true
             KeybindBtn.Text = "..."
-            KeybindBtn.TextColor3 = Color3.fromRGB(235, 130, 255)
+            KeybindBtn.TextColor3 = Color3.fromRGB(255, 92, 102)
         end)
 
         UserInputService.InputBegan:Connect(function(input, gp)
@@ -645,11 +665,12 @@ local function OpenMainPanel()
         SFCorn.CornerRadius = UDim.new(0, 8)
         SFCorn.Parent = SliderFrame
 
-        local Label = Instance.new("TextLabel")
-        Label.Size = UDim2.new(1, -30, 0, 25)
-        Label.Position = UDim2.new(0, 18, 0, 8)
-        Label.BackgroundTransparency = 1
         local suffix = (name:find("Suavidad") or name:find("Transparencia")) and "%" or ""
+
+        local Label = Instance.new("TextLabel")
+        Label.Size = UDim2.new(1, -36, 0, 24)
+        Label.Position = UDim2.new(0, 18, 0, 5)
+        Label.BackgroundTransparency = 1
         Label.Text = name .. ": " .. tostring(default) .. suffix
         Label.TextColor3 = Color3.fromRGB(220, 220, 230)
         Label.TextSize = 13
@@ -657,20 +678,26 @@ local function OpenMainPanel()
         Label.TextXAlignment = Enum.TextXAlignment.Left
         Label.Parent = SliderFrame
 
+        -- Barra fina estilo la referencia: pista gris, progreso dorado y pomo blanco.
         local BarBg = Instance.new("Frame")
-        BarBg.Size = UDim2.new(1, -36, 0, 6)
-        BarBg.Position = UDim2.new(0, 18, 0, 42)
-        BarBg.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+        BarBg.Name = "SliderTrack"
+        BarBg.Size = UDim2.new(1, -36, 0, 4)
+        BarBg.Position = UDim2.new(0, 18, 0, 43)
+        BarBg.BackgroundColor3 = Color3.fromRGB(67, 63, 59)
         BarBg.BorderSizePixel = 0
+        BarBg.ClipsDescendants = false
         BarBg.Parent = SliderFrame
 
         local BBCorn = Instance.new("UICorner")
         BBCorn.CornerRadius = UDim.new(1, 0)
         BBCorn.Parent = BarBg
 
+        local initialPercent = math.clamp((default - min) / math.max(max - min, 1), 0, 1)
+
         local FillBar = Instance.new("Frame")
-        FillBar.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
-        FillBar.BackgroundColor3 = Color3.fromRGB(162, 57, 239)
+        FillBar.Name = "SliderFill"
+        FillBar.Size = UDim2.new(initialPercent, 0, 1, 0)
+        FillBar.BackgroundColor3 = Color3.fromRGB(214, 164, 91)
         FillBar.BorderSizePixel = 0
         FillBar.Parent = BarBg
 
@@ -678,33 +705,86 @@ local function OpenMainPanel()
         FBCorn.CornerRadius = UDim.new(1, 0)
         FBCorn.Parent = FillBar
 
+        local Knob = Instance.new("Frame")
+        Knob.Name = "WhiteSliderKnob"
+        Knob.Size = UDim2.new(0, 18, 0, 18)
+        Knob.AnchorPoint = Vector2.new(0.5, 0.5)
+        Knob.Position = UDim2.new(initialPercent, 0, 0.5, 0)
+        Knob.BackgroundColor3 = Color3.fromRGB(245, 245, 242)
+        Knob.BorderSizePixel = 0
+        Knob.ZIndex = 3
+        Knob.Parent = BarBg
+
+        local KnobCorner = Instance.new("UICorner")
+        KnobCorner.CornerRadius = UDim.new(1, 0)
+        KnobCorner.Parent = Knob
+
+        local KnobStroke = Instance.new("UIStroke")
+        KnobStroke.Color = Color3.fromRGB(225, 225, 220)
+        KnobStroke.Thickness = 0.5
+        KnobStroke.Parent = Knob
+
+        -- Botón transparente para poder agarrar la barra o el punto blanco.
         local DragButton = Instance.new("TextButton")
-        DragButton.Size = UDim2.new(1, 0, 1, 10)
-        DragButton.Position = UDim2.new(0, 0, 0, -5)
+        DragButton.Name = "SliderInput"
+        DragButton.Size = UDim2.new(1, 0, 0, 26)
+        DragButton.Position = UDim2.new(0, 0, 0.5, -13)
         DragButton.BackgroundTransparency = 1
         DragButton.Text = ""
+        DragButton.ZIndex = 4
         DragButton.Parent = BarBg
 
         local dragging = false
-        DragButton.MouseButton1Down:Connect(function() dragging = true end)
-        UserInputService.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                dragging = false
+        local lastValue = default
+
+        local function setFromScreenX(screenX)
+            local barPos = BarBg.AbsolutePosition
+            local barSize = BarBg.AbsoluteSize
+            if barSize.X <= 0 then return end
+
+            local percent = math.clamp((screenX - barPos.X) / barSize.X, 0, 1)
+            local value = math.floor(min + (max - min) * percent + 0.5)
+            local snappedPercent = math.clamp((value - min) / math.max(max - min, 1), 0, 1)
+
+            FillBar.Size = UDim2.new(snappedPercent, 0, 1, 0)
+            Knob.Position = UDim2.new(snappedPercent, 0, 0.5, 0)
+
+            if value ~= lastValue then
+                lastValue = value
+                Label.Text = name .. ": " .. tostring(value) .. suffix
+                pcall(function()
+                    callback(value)
+                end)
+            end
+        end
+
+        DragButton.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1
+                or input.UserInputType == Enum.UserInputType.Touch then
+                dragging = true
+                setFromScreenX(input.Position.X)
             end
         end)
 
         UserInputService.InputChanged:Connect(function(input)
-            if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-                local mousePos = UserInputService:GetMouseLocation()
-                local barPos = BarBg.AbsolutePosition
-                local barSize = BarBg.AbsoluteSize
-                local percent = math.clamp((mousePos.X - barPos.X) / barSize.X, 0, 1)
-                
-                FillBar.Size = UDim2.new(percent, 0, 1, 0)
-                local val = math.floor(min + (max - min) * percent)
-                Label.Text = name .. ": " .. tostring(val) .. suffix
-                pcall(function() callback(val) end)
+            if dragging and (
+                input.UserInputType == Enum.UserInputType.MouseMovement
+                or input.UserInputType == Enum.UserInputType.Touch
+            ) then
+                setFromScreenX(input.Position.X)
             end
+        end)
+
+        UserInputService.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1
+                or input.UserInputType == Enum.UserInputType.Touch then
+                dragging = false
+            end
+        end)
+
+        -- Aplica también el valor inicial al sistema que controla el slider.
+        pcall(function()
+            callback(default)
         end)
     end
 
@@ -746,6 +826,12 @@ local function OpenMainPanel()
     CreateToggle(VisualContainer, "Health", "Health")
     CreateToggle(VisualContainer, "Highlight", "Highlight")
     CreateSlider(VisualContainer, "Distancia Máxima ESP", 100, 10000, 5000, function(val) espMaxDistance = val end)
+    CreateSlider(VisualContainer, "Grosor de líneas", 1, 8, 1, function(val)
+        lineThickness = val
+    end)
+    CreateSlider(VisualContainer, "Altura inicial de líneas", -500, 500, 0, function(val)
+        lineOriginYOffset = val
+    end)
 
     -- ==========================================
     -- AIMBOT + DESPLEGABLE FLOTANTE EN SCREEN GUI
@@ -757,7 +843,7 @@ local function OpenMainPanel()
     DropdownBtn.Size = UDim2.new(0, 125, 0, 26)
     DropdownBtn.Position = UDim2.new(0, 82, 0.5, -13)
     DropdownBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
-    DropdownBtn.TextColor3 = Color3.fromRGB(235, 130, 255)
+    DropdownBtn.TextColor3 = Color3.fromRGB(255, 92, 102)
     DropdownBtn.Text = "Click Derecho  ▼"
     DropdownBtn.TextSize = 11
     DropdownBtn.Font = Enum.Font.GothamBold
@@ -768,7 +854,7 @@ local function OpenMainPanel()
     DBCorner.Parent = DropdownBtn
 
     local DBStroke = Instance.new("UIStroke")
-    DBStroke.Color = Color3.fromRGB(72, 27, 117)
+    DBStroke.Color = Color3.fromRGB(115, 20, 30)
     DBStroke.Thickness = 1
     DBStroke.Parent = DropdownBtn
 
@@ -786,14 +872,14 @@ local function OpenMainPanel()
     DBoxCorner.Parent = DropdownBox
 
     local DBoxStroke = Instance.new("UIStroke")
-    DBoxStroke.Color = Color3.fromRGB(162, 57, 239)
+    DBoxStroke.Color = Color3.fromRGB(220, 35, 48)
     DBoxStroke.Thickness = 1
     DBoxStroke.Parent = DropdownBox
 
     local OptionRight = Instance.new("TextButton")
     OptionRight.Size = UDim2.new(1, -6, 0, 24)
     OptionRight.Position = UDim2.new(0, 3, 0, 3)
-    OptionRight.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
+    OptionRight.BackgroundColor3 = Color3.fromRGB(58, 13, 18)
     OptionRight.TextColor3 = Color3.fromRGB(255, 255, 255)
     OptionRight.Text = "Click Derecho"
     OptionRight.TextSize = 11
@@ -830,7 +916,7 @@ local function OpenMainPanel()
         if choice == "Left" then
             aimbotMouseButton = Enum.UserInputType.MouseButton1
             DropdownBtn.Text = "Click Izquierdo  ▼"
-            OptionLeft.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
+            OptionLeft.BackgroundColor3 = Color3.fromRGB(58, 13, 18)
             OptionLeft.TextColor3 = Color3.fromRGB(255, 255, 255)
             OptionLeft.Font = Enum.Font.GothamBold
             OptionRight.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
@@ -839,7 +925,7 @@ local function OpenMainPanel()
         else
             aimbotMouseButton = Enum.UserInputType.MouseButton2
             DropdownBtn.Text = "Click Derecho  ▼"
-            OptionRight.BackgroundColor3 = Color3.fromRGB(38, 16, 56)
+            OptionRight.BackgroundColor3 = Color3.fromRGB(58, 13, 18)
             OptionRight.TextColor3 = Color3.fromRGB(255, 255, 255)
             OptionRight.Font = Enum.Font.GothamBold
             OptionLeft.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
@@ -964,7 +1050,7 @@ local function OpenMainPanel()
     fovCircle.Thickness = 1.5
     fovCircle.NumSides = 60
     fovCircle.Filled = false
-    fovCircle.Color = Color3.fromRGB(162, 57, 239)
+    fovCircle.Color = Color3.fromRGB(220, 35, 48)
     fovCircle.Visible = false
 
     local espDrawings = {}
@@ -1079,7 +1165,7 @@ local function OpenMainPanel()
                             end
 
                             local visible = isVisible(targetHead, char)
-                            local dynamicColor = visible and Color3.fromRGB(162, 57, 239) or Color3.fromRGB(85, 255, 127)
+                            local dynamicColor = visible and Color3.fromRGB(220, 35, 48) or Color3.fromRGB(85, 255, 127)
 
                             if Highlight_Enabled then
                                 if not espDrawings[player].Highlight then
@@ -1126,18 +1212,24 @@ local function OpenMainPanel()
                             if Lines_Enabled then
                                 if not espDrawings[player].Line then
                                     local line = Drawing.new("Line")
-                                    line.Thickness = 1
+                                    line.Thickness = lineThickness
                                     espDrawings[player].Line = line
                                 end
 
+                                espDrawings[player].Line.Thickness = lineThickness
                                 espDrawings[player].Line.Color = dynamicColor
                                 local pos, onScreen = Camera:WorldToViewportPoint(targetHrp.Position)
                                 if onScreen then
-                                    espDrawings[player].Line.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
-                                    espDrawings[player].Line.To = Vector2.new(pos.X, pos.Y)
+                                    local lineStart = Vector2.new(
+                                        Camera.ViewportSize.X / 2,
+                                        Camera.ViewportSize.Y - lineOriginYOffset
+                                    )
+                                    local lineEnd = Vector2.new(pos.X, pos.Y)
+
+                                    espDrawings[player].Line.From = lineStart
+                                    espDrawings[player].Line.To = lineEnd
                                     espDrawings[player].Line.Visible = true
                                     TopIndicatorFrame.Visible = true
-                                    
                                     linesMarkedCount = linesMarkedCount + 1
                                 else
                                     espDrawings[player].Line.Visible = false
@@ -1202,7 +1294,7 @@ local function OpenMainPanel()
                 if not activePlayers[p] then
                     if obj.Box then obj.Box:Remove() end
                     if obj.Line then obj.Line:Remove() end
-                    if obj.HealthBar then obj.HealthBar:Remove() end
+                            if obj.HealthBar then obj.HealthBar:Remove() end
                     if obj.HealthBg then obj.HealthBg:Remove() end
                     if obj.Highlight then obj.Highlight:Destroy() end
                     espDrawings[p] = nil

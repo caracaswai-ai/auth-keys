@@ -12,5 +12,12 @@
         "allowedHWIDs": [],
         "usedBy": "10xs",
         "expiresAt": 1837973662
+    },
+    "VIP-KEY-EUCYS8A2": {
+        "durationDays": 500,
+        "maxDevices": 1,
+        "allowedHWIDs": [],
+        "usedBy": "LBO_Componente61",
+        "expiresAt": 1837973684
     }
 }

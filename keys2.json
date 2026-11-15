@@ -12,12 +12,5 @@
         "allowedHWIDs": [],
         "usedBy": "P\u00fablico",
         "expiresAt": 1794810426
-    },
-    "FREE-KEY-99ENUGG7": {
-        "durationDays": 1,
-        "maxDevices": 3,
-        "allowedHWIDs": [],
-        "usedBy": "P\u00fablico",
-        "expiresAt": 1794810509
     }
 }

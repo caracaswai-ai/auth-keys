@@ -1,1 +1,16 @@
-{}
+{
+    "FREE-KEY-7O1V5CRX": {
+        "durationDays": 1,
+        "maxDevices": 1,
+        "allowedHWIDs": [],
+        "usedBy": "P\u00fablico",
+        "expiresAt": 1794810053
+    },
+    "VIP-KEY-KAMAY0N8": {
+        "durationDays": 1,
+        "maxDevices": 1,
+        "allowedHWIDs": [],
+        "usedBy": "10s",
+        "expiresAt": 1794810624
+    }
+}

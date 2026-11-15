@@ -635,7 +635,7 @@ linesToggle.MouseButton1Click:Connect(function() toggleState(linesToggle, linesC
 healthToggle.MouseButton1Click:Connect(function() toggleState(healthToggle, healthCircle, "health") end)
 
 -- ==========================================
--- 5. VALIDACIÓN DE KEYS CONECTADA A GITHUB
+-- 5. VALIDACIÓN DE KEYS CONECTADA A GITHUB (COMPATIBLE CON BOT DE DISCORD)
 -- ==========================================
 verifyButton.MouseButton1Click:Connect(function()
     local enteredKey = keyBox.Text
@@ -687,7 +687,24 @@ verifyButton.MouseButton1Click:Connect(function()
         return
     end
     
-    local totalSeconds = (keyData.durationDays * 86400) + (keyData.durationHours * 3600) + (keyData.durationMinutes * 60)
+    -- Soporte universal por si el bot de Discord guarda la key de forma simplificada
+    if type(keyData) ~= "table" then
+        verifyButton.Text = "¡VERIFICADO!"
+        keyBox.PlaceholderText = "¡Verificado!"
+        task.wait(0.4)
+        keyFrame.Visible = false
+        mainPanel.Visible = true
+        return
+    end
+
+    -- Asignación de valores seguros por si al bot le faltan parámetros opcionales
+    local durationDays = keyData.durationDays or 0
+    local durationHours = keyData.durationHours or 0
+    local durationMinutes = keyData.durationMinutes or 0
+    local maxDevices = keyData.maxDevices or 999
+    keyData.allowedHWIDs = keyData.allowedHWIDs or {}
+
+    local totalSeconds = (durationDays * 86400) + (durationHours * 3600) + (durationMinutes * 60)
     
     if totalSeconds > 0 then
         if not keyData.expirationTime then
@@ -702,7 +719,7 @@ verifyButton.MouseButton1Click:Connect(function()
         end
     end
     
-    local allowedHWIDs = keyData.allowedHWIDs or {}
+    local allowedHWIDs = keyData.allowedHWIDs
     local deviceAlreadyRegistered = false
     
     for _, id in ipairs(allowedHWIDs) do
@@ -713,7 +730,7 @@ verifyButton.MouseButton1Click:Connect(function()
     end
     
     if not deviceAlreadyRegistered then
-        if #allowedHWIDs < keyData.maxDevices then
+        if #allowedHWIDs < maxDevices then
             table.insert(allowedHWIDs, deviceID)
             keyData.allowedHWIDs = allowedHWIDs
         else

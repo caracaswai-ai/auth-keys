@@ -26,5 +26,12 @@
         "allowedHWIDs": [],
         "usedBy": "DxmxnteCee",
         "expiresAt": 1838580449
+    },
+    "VIP-KEY-VRKWCCVA": {
+        "durationDays": 5,
+        "maxDevices": 1,
+        "allowedHWIDs": [],
+        "usedBy": "BrightCool_boy123",
+        "expiresAt": 1795895400
     }
 }

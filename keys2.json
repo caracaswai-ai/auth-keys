@@ -33,5 +33,12 @@
         "allowedHWIDs": [],
         "usedBy": "BrightCool_boy123",
         "expiresAt": 1795895400
+    },
+    "VIP-KEY-J1ZW0ZD4": {
+        "durationDays": 500,
+        "maxDevices": 1,
+        "allowedHWIDs": [],
+        "usedBy": "10s",
+        "expiresAt": 1838909843
     }
 }
